@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TripMate AI - Journey Details & Weather Planner</title>
+  <style>
+    :root {
+      --primary: #0284c7;
+      --primary-dark: #0369a1;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --text: #0f172a;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      color: var(--text);
+      /* High Quality Travel AI Background */
+      background: linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.65)), 
+                  url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1920&q=80') center/cover no-repeat fixed;
+      min-height: 100vh;
+    }
+
+    /* Centered Navigation Bar */
+    .navbar {
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(8px);
+      padding: 1rem 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .navbar .logo {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #38bdf8;
+      margin-bottom: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .nav-links {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1.2rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      color: #f1f5f9;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      transition: all 0.2s ease-in-out;
+    }
+
+    .nav-links a:hover, .nav-links a.active {
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.15);
+    }
+
+    .container {
+      max-width: 850px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      margin-bottom: 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.2rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      margin-bottom: 0.4rem;
+      font-weight: 700;
+      color: #1e293b;
+      font-size: 0.95rem;
+    }
+
+    select, input[type="date"], input[type="number"] {
+      width: 100%;
+      padding: 0.85rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 1rem;
+      box-sizing: border-box;
+      outline: none;
+      background: #ffffff;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+      color: white;
+      border: none;
+      padding: 1rem 1.5rem;
+      font-size: 1.1rem;
+      font-weight: 700;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 1rem;
+      transition: transform 0.2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-next {
+      background: linear-gradient(135deg, #10b981, #059669);
+      margin-top: 1.5rem;
+    }
+
+    /* Transport Mode Cards */
+    .transport-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .mode-card {
+      background: #ffffff;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1.2rem;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .mode-card.selected-mode {
+      border-color: #10b981;
+      background: #f0fdf4;
+    }
+
+    .mode-card .icon {
+      font-size: 2.2rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .mode-card h4 {
+      margin: 0 0 0.5rem 0;
+      color: var(--primary-dark);
+    }
+
+    .info-badge {
+      background: #e0f2fe;
+      color: var(--primary-dark);
+      padding: 0.8rem;
+      border-radius: 8px;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      text-align: center;
+      font-size: 1.05rem;
+    }
+
+    .weather-box {
+      background: #f0f9ff;
+      border-left: 5px solid var(--primary);
+      padding: 1.2rem;
+      border-radius: 8px;
+      margin-top: 1.5rem;
+      line-height: 1.8;
+    }
+
+    .weather-list {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .weather-list li {
+      padding: 0.4rem 0;
+      border-bottom: 1px dashed #cbd5e1;
+      font-size: 0.95rem;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="logo">✨ TripMate AI</div>
+    <ul class="nav-links">
+      <li><a href="index.html">🏠 Home</a></li>
+      <li><a href="trip.html" class="active">✈️ Trip & Weather</a></li>
+      <li><a href="food.html">🍲 Food</a></li>
+      <li><a href="hotel.html">🏨 Hotel</a></li>
+      <li><a href="places.html">📍 Places</a></li>
+      <li><a href="style.html">👗 AI Style</a></li>
+      <li><a href="booking.html">💳 Booking</a></li>
+      <li><a href="login.html" onclick="alert('Logged out successfully!')">🚪 Logout</a></li>
+    </ul>
+  </nav>
+
+  <div class="container">
+    
+    <div class="card">
+      <h2 style="margin-top:0; color: var(--primary-dark); text-align: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.6rem;">
+        Journey Details & Weather Planner 🌤️
+      </h2>
+
+      <!-- 1. Trip Type -->
+      <div class="form-group">
+        <label for="tripType">1. Select Trip Type:</label>
+        <select id="tripType" onchange="togglePersonInput()">
+          <option value="Solo Trip">Solo Trip</option>
+          <option value="Friends Trip">Friends Trip</option>
+          <option value="Family Trip">Family Trip</option>
+        </select>
+      </div>
+
+      <!-- Dynamic Persons Count -->
+      <div id="personGroup" class="form-group hidden">
+        <label for="personCount">Enter Number of Persons:</label>
+        <input type="number" id="personCount" min="2" value="2" placeholder="Enter number of travelers">
+      </div>
+
+      <!-- 2. From Source City (Completely Blank Default) -->
+      <div class="form-group">
+        <label for="fromCity">2. From (Source City):</label>
+        <select id="fromCity">
+          <option value="" disabled selected></option>
+          <option value="Madurai">Madurai</option>
+          <option value="Tanjore">Tanjore</option>
+          <option value="KodaiKanal">KodaiKanal</option>
+          <option value="Ooty">Ooty</option>
+          <option value="Chennai">Chennai</option>
+          <option value="Trichy">Trichy</option>
+          <option value="Rameshwaram">Rameshwaram</option>
+          <option value="Kanyakumari">Kanyakumari</option>
+          <option value="Pondicherry">Pondicherry</option>
+          <option value="Coimbatore">Coimbatore</option>
+          <option value="Kanchipuram">Kanchipuram</option>
+          <option value="Tiruelveli">Tiruelveli</option>
+          <option value="Salem">Salem</option>
+          <option value="Erode">Erode</option>
+          <option value="Vellore">Vellore</option>
+          <option value="Goa">Goa</option>
+          <option value="Delhi">Delhi</option>
+          <option value="Mumbai">Mumbai</option>
+          <option value="Agra">Agra</option>
+          <option value="Jaipur">Jaipur</option>
+          <option value="Udaipur">Udaipur</option>
+          <option value="Varanasi">Varanasi</option>
+          <option value="Bangalore">Bangalore</option>
+          <option value="Hyderabad">Hyderabad</option>
+          <option value="Pune<">Pune</option>
+          <option value="Tirupati">Tirupati</option>
+          <option value="Kolkata">Kolkata</option>
+          <option value="Ahmedabad">Ahmedabad</option>
+          <option value="Amristar">Amristar</option>
+          <option value="Mysore">Mysore</option>
+          <option value="Kochi">Kochi</option>
+          <option value="Alleppey">Alleppey</option>
+          <option value="Wayanad">Wayanad</option>
+          <option value="Munnar">Munnar</option>
+          <option value="Coorg">Coorg</option>
+          <option value="Vizag">Vizag</option>
+          <option value="Manali">Manali</option>
+          <option value="Shimla">Shimla</option>
+          <option value="Srinagar">Srinagar</option>
+          <option value="Leh Ladakh">Leh Ladakh</option>
+          <option value="Jodhpu">Jodhpur</option>
+          <option value="Jaisalmer">Jaisalmer</option>
+          <option value="Rishikesh">Rishikesh</option>
+          <option value="Haridwar">Haridwar</option>
+          <option value="Darjeeling">Darjeeling</option>
+          <option value="Gangtok">Gangtok</option>
+          <option value="Shillong">Shillong</option>
+          <option value="Bhubaneswar>Bhubaneswar</option>
+          <option value="Puri">Puri</option>
+          <option value="Gwalior">Gwalior</option>
+        </select>
+      </div>
+
+      <!-- 3. To Destination City (Completely Blank Default) -->
+      <div class="form-group">
+        <label for="toCity">3. To (Destination City):</label>
+        <select id="toCity">
+          <option value="" disabled selected></option>
+          <option value="Bangalore">Bangalore</option>
+          <option value="Madurai">Madurai</option>
+          <option value="Chennai">Chennai</option>
+          <option value="Goa">Goa</option>
+          <option value="Kodaikanal">Kodaikanal</option>
+          <option value="Ooty">Ooty</option>
+          <option value="Munnar">Munnar</option>
+          <option value="Delhi">Delhi</option>
+          <option value="Jaipur">Jaipur</option>
+          <option value="Mumbai">Mumbai</option>
+          <option value="Coimbatore">Coimbatore</option>
+          <option value="Trichy">Trichy</option>
+          <option value="Hyderabad">Hyderabad</option>
+          <option value="Kolkata">Kolkata</option>
+          <option value="Rameshwaram">Rameshwaram</option>
+          <option value="Tirupati">Tirupati</option>
+          <option value="Tanjore">Tanjore</option>
+          <option value="Kanyakumari">Kanyakumari</option>
+          <option value="Mysore">Mysore</option>
+          <option value="Wayanad">Wayanad</option>
+          <option value="Coorg">Coorg</option>
+          <option value="Pondicherry">Pondicherry</option>
+          <option value="Alleppey">Alleppey</option>
+          <option value="Srinagar">Srinagar</option>
+          <option value="Vellore">Vellore</option>
+          <option value="Gwalior">Gwalior</option>
+          <option value="Jodhpur">Jodhpur</option>
+          <option value="Haridwar">Haridwar</option>
+          <option value="Puri">Puri</option>
+          <option value="Bhubanaeswar">Bhubanaeswar</option>
+          <option value="Vizag">Vizag</option>
+          <option value="Manali">Manali</option>
+          <option value="Shimla">Shimla</option>
+          <option value="Varanasi">Varanasi</option>
+          <option value="Ahmedabad">Ahmedabad</option>
+          <option value="Kochi">Kochi</option>
+          <option value="Leh Ladakh">Leh Ladakh</option>
+          <option value="Jaisalmer">Jaisalmer</option>
+          <option value="Salem">Salem</option>
+          <option value="Darjeeling">Darjeeling</option>
+          <option value="Gangtok">Gangtok</option>
+          <option value="Shillong">Shillong</option>
+          <option value="Udaipur">Udaipur</option>
+          <option value="Agra">Agra</option>
+          <option value="Kanchipuram">Kanchipuram</option>
+          <option value="Amritsar">Amritsar</option>
+          <option value="Rishikesh">Rishikesh</option>
+          <option value="Pune">Pune</option>
+          <option value="Tirunveli">Tirunveli</option>
+          <option value="Erode">Erode</option>
+        </select>
+      </div>
+
+      <!-- Preferred Mode Selection -->
+      <div class="form-group">
+        <label for="preferredMode">4. Which mode are you traveling by?</label>
+        <select id="preferredMode">
+          <option value="Sleeper Bus">Bus</option>
+          <option value="Train">Train</option>
+          <option value="Flight">Flight</option>
+        </select>
+      </div>
+
+      <!-- Blank Date Inputs -->
+      <div style="display: flex; gap: 1rem;">
+        <div class="form-group" style="flex:1;">
+          <label for="startDate">5. Start Date:</label>
+          <input type="date" id="startDate">
+        </div>
+        <div class="form-group" style="flex:1;">
+          <label for="returnDate">6. Return Date:</label>
+          <input type="date" id="returnDate">
+        </div>
+      </div>
+
+      <button class="btn" onclick="calculateTravelAndWeather()">
+        Calculate Fare, Travel Duration & Weather →
+      </button>
+
+    </div>
+
+    <!-- Output Analysis Card -->
+    <div id="tripResultBox" class="card hidden">
+      <h3 style="margin-top:0; color: var(--primary-dark); text-align: center;">
+        AI Travel Duration & Transport Recommendation
+      </h3>
+
+      <!-- Route Header Badge -->
+      <div id="routeBadge" class="info-badge"></div>
+
+      <!-- Transport Grid -->
+      <h4 style="color: #1e293b; margin-top: 1rem;">Travel Modes, Duration & Per Person Fare:</h4>
+      <div class="transport-grid">
+        
+        <!-- Flight -->
+        <div id="flightCard" class="mode-card">
+          <div class="icon">✈️</div>
+          <h4>Flight</h4>
+          <p><b>Duration:</b> <span id="flightTime"></span></p>
+          <p><b>Fare / Person:</b> <span id="flightFare" style="color: var(--primary-dark); font-weight:700;"></span></p>
+        </div>
+
+        <!-- Train -->
+        <div id="trainCard" class="mode-card">
+          <div class="icon">🚆</div>
+          <h4>Train</h4>
+          <p><b>Duration:</b> <span id="trainTime"></span></p>
+          <p><b>Fare / Person:</b> <span id="trainFare" style="color: var(--primary-dark); font-weight:700;"></span></p>
+        </div>
+
+        <!-- Sleeper Bus -->
+        <div id="busCard" class="mode-card">
+          <div class="icon">🚌</div>
+          <h4>Sleeper Bus</h4>
+          <p><b>Duration:</b> <span id="busTime"></span></p>
+          <p><b>Fare / Person:</b> <span id="busFare" style="color: var(--primary-dark); font-weight:700;"></span></p>
+        </div>
+
+      </div>
+
+      <!-- Weather Box (Strictly from Start Date to Return Date) -->
+      <div id="weatherContainer" class="weather-box hidden">
+        <h4 style="margin-top:0; color: var(--primary-dark);">🌤️ Weather Forecast (From Start Date to Return Date):</h4>
+        <ul id="weatherForecastList" class="weather-list"></ul>
+      </div>
+
+      <button class="btn btn-next" onclick="window.location.href='food.html'">
+        Next: Select Food Preferences 🍲 →
+      </button>
+
+    </div>
+
+  </div>
+
+  <script>
+    const cityCoords = {
+      "Madurai": [9.9252, 78.1198], "Chennai": [13.0827, 80.2707], "Coimbatore": [11.0168, 76.9558],
+      "Trichy": [10.7905, 78.7047], "Bangalore": [12.9716, 77.5946], "Hyderabad": [17.3850, 78.4867],
+      "Mumbai": [19.0760, 72.8777], "Delhi": [28.7041, 77.1025], "Kolkata": [22.5726, 88.3639],
+      "Goa": [15.2993, 74.1240], "Kodaikanal": [10.2381, 77.4892], "Ooty": [11.4102, 76.6950],
+      "Rameshwaram": [9.2876, 79.3129], "Tirupati": [13.6288, 79.4192], "Tanjore": [10.7870, 79.1378],
+      "Kanyakumari": [8.0883, 77.5385], "Mysore": [12.2958, 76.6394], "Munnar": [10.0889, 77.0595],
+      "Wayanad": [11.6854, 76.1320], "Coorg": [12.3375, 75.8069], "Pondicherry": [11.9416, 79.8083],
+      "Alleppey": [9.4981, 76.3388], "Cochin": [9.9312, 76.2673], "Varkala": [8.7379, 76.7163],
+      "Gokarna": [14.5479, 74.3188], "Chikmagalur": [13.3161, 75.7720], "Hampi": [15.3350, 76.4600],
+      "Badami": [15.9149, 75.6768], "Mangalore": [12.9141, 74.8560], "Vizag": [17.6868, 83.2185],
+      "Manali": [32.2432, 77.1892], "Shimla": [31.1048, 77.1734], "Dharamshala": [32.2190, 76.3234],
+      "Srinagar": [34.0837, 74.7973], "Gulmarg": [34.0484, 74.3805], "Leh Ladakh": [34.1526, 77.5771],
+      "Nainital": [29.3803, 79.4636], "Mussoorie": [30.4598, 78.0644], "Darjeeling": [27.0410, 88.2663],
+      "Gangtok": [27.3389, 88.6065], "Shillong": [25.5788, 91.8933], "Jaipur": [26.9124, 75.7873],
+      "Udaipur": [24.5854, 73.7125], "Agra": [27.1767, 78.0081], "Varanasi": [25.3176, 82.9739],
+      "Amritsar": [31.6340, 74.8723], "Rishikesh": [30.0869, 78.2676], "Pune": [18.5204, 73.8567],
+      "Mahabaleshwar": [17.9237, 73.6586], "Lonavala": [18.7557, 73.4091]
+    };
+
+    function calculateDistance(city1, city2) {
+      const p1 = cityCoords[city1] || [10.0, 78.0];
+      const p2 = cityCoords[city2] || [12.9, 77.5];
+      const R = 6371;
+      const dLat = (p2[0] - p1[0]) * Math.PI / 180;
+      const dLon = (p2[1] - p1[1]) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(p1[0] * Math.PI / 180) * Math.cos(p2[0] * Math.PI / 180) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return Math.round(R * c * 1.25);
+    }
+
+    function togglePersonInput() {
+      const tripType = document.getElementById('tripType').value;
+      const personGroup = document.getElementById('personGroup');
+      if (tripType === 'Friends Trip' || tripType === 'Family Trip') {
+        personGroup.classList.remove('hidden');
+      } else {
+        personGroup.classList.add('hidden');
+      }
+    }
+
+    function calculateTravelAndWeather() {
+      const tripType = document.getElementById('tripType').value;
+      const from = document.getElementById('fromCity').value;
+      const to = document.getElementById('toCity').value;
+      const preferredMode = document.getElementById('preferredMode').value;
+      const start = document.getElementById('startDate').value;
+      const ret = document.getElementById('returnDate').value;
+      const persons = document.getElementById('personCount').value;
+
+      if (!from || !to) {
+        alert("Please select both Source (From) and Destination (To) cities!");
+        return;
+      }
+
+      if (from === to) {
+        alert("Source and Destination cities cannot be the same!");
+        return;
+      }
+
+      let travelerInfo = tripType;
+      if (tripType !== 'Solo Trip') {
+        travelerInfo += ` (${persons} Persons)`;
+      }
+
+      const km = calculateDistance(from, to);
+
+      // Display Journey / Travel Duration & Fares first
+      let durationText = "";
+      let totalDays = 0;
+      let date1, date2;
+
+      if (start && ret) {
+        date1 = new Date(start);
+        date2 = new Date(ret);
+        const diffTime = date2 - date1;
+        totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+        if (totalDays > 0) {
+          durationText = ` | Duration: ${totalDays} Days`;
+        }
+      }
+
+      document.getElementById('routeBadge').innerHTML = 
+        `🗺️ <b>${from}</b> → <b>${to}</b> (~${km} km) | (${travelerInfo}${durationText})<br>Selected Mode: <b>${preferredMode}</b>`;
+
+      document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('selected-mode'));
+      if (preferredMode === 'Flight') document.getElementById('flightCard').classList.add('selected-mode');
+      if (preferredMode === 'Train') document.getElementById('trainCard').classList.add('selected-mode');
+      if (preferredMode === 'Sleeper Bus') document.getElementById('busCard').classList.add('selected-mode');
+
+      // Flight
+      let flightHours = Math.floor(km / 500) + 1;
+      let flightMins = Math.round((km % 500) / 10);
+      if (flightMins >= 60) { flightHours += 1; flightMins -= 60; }
+      if (flightHours < 1) flightHours = 1;
+      let flightPrice = Math.round(2000 + (km * 4.5));
+
+      // Train
+      let trainTotalMins = Math.round((km / 60) * 60);
+      let trainHours = Math.floor(trainTotalMins / 60);
+      let trainMins = trainTotalMins % 60;
+      let trainPrice = Math.round(300 + (km * 0.8));
+
+      // Bus
+      let busTotalMins = Math.round((km / 50) * 60);
+      let busHours = Math.floor(busTotalMins / 60);
+      let busMins = busTotalMins % 60;
+      let busPrice = Math.round(400 + (km * 1.1));
+
+      document.getElementById('flightTime').innerText = `${flightHours} Hour${flightHours > 1 ? 's' : ''} ${flightMins} Mins`;
+      document.getElementById('flightFare').innerText = `₹${flightPrice.toLocaleString('en-IN')}`;
+
+      document.getElementById('trainTime').innerText = `${trainHours} Hour${trainHours > 1 ? 's' : ''} ${trainMins} Mins`;
+      document.getElementById('trainFare').innerText = `₹${trainPrice.toLocaleString('en-IN')}`;
+
+      document.getElementById('busTime').innerText = `${busHours} Hour${busHours > 1 ? 's' : ''} ${busMins} Mins`;
+      document.getElementById('busFare').innerText = `₹${busPrice.toLocaleString('en-IN')}`;
+
+      // Weather Forecast (Strictly if Start & Return dates are provided)
+      const weatherBox = document.getElementById('weatherContainer');
+      const weatherList = document.getElementById('weatherForecastList');
+
+      if (start && ret && totalDays > 0) {
+        let weatherHTML = "";
+        const conditions = [
+          "Sunny & Clear Sky (28°C / 20°C)",
+          "Pleasant Breeze & Partly Cloudy (26°C / 19°C)",
+          "Warm & Sunny (29°C / 21°C)",
+          "Cool Morning, Clear Skies (25°C / 18°C)",
+          "Light Passing Clouds (27°C / 19°C)",
+          "Sunny & Good Travel Conditions (28°C / 20°C)",
+          "Pleasant Evening Breeze (24°C / 17°C)",
+          "Clear Skies & Bright Sunlight (29°C / 21°C)",
+          "Mild Temperature & Dry Air (26°C / 18°C)",
+          "Perfect Outdoor Sightseeing Weather (27°C / 19°C)"
+        ];
+
+        for (let i = 0; i < totalDays; i++) {
+          let currDate = new Date(date1);
+          currDate.setDate(date1.getDate() + i);
+          let dateStr = currDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          let cond = conditions[i % conditions.length];
+          weatherHTML += `<li><b>Day ${i + 1} (${dateStr}):</b> ${cond}</li>`;
+        }
+
+        weatherList.innerHTML = weatherHTML;
+        weatherBox.classList.remove('hidden');
+      } else {
+        weatherBox.classList.add('hidden');
+      }
+
+      const resBox = document.getElementById('tripResultBox');
+      resBox.classList.remove('hidden');
+      resBox.scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>s

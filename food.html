@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Select Your Food - TripMate AI</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body style="background-image: url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1920');">
+
+  <!-- Simple Header Title -->
+  <header>
+    <h1>Select Your Food</h1>
+  </header>
+
+  <!-- Navigation Bar -->
+  <nav class="top-nav">
+    <a href="index.html">🏠 Home</a>
+    <a href="trip.html">✈️ Trip & Weather</a>
+    <a href="food.html" class="active">🍲 Food</a>
+    <a href="hotel.html">🏨 Hotel</a>
+    <a href="places.html">📍 Places</a>
+    <a href="style.html">👗 AI Style</a>
+    <a href="booking.html">💳 Booking</a>
+    <a href="login.html" style="background: #ef4444;">🚪 Logout</a>
+  </nav>
+
+  <div class="container">
+    <h2 style="text-align: center; margin-bottom: 1.5rem;">Select Your Food 🍽️</h2>
+
+    <!-- Fixed Food Packages Grid -->
+    <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+      
+      <!-- 1. Vegetarian Package -->
+      <div class="dash-card card" style="padding: 0; overflow: hidden; background: #ffffff;">
+        <img src="https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500" alt="Vegetarian Food" style="height: 180px; width:100%; object-fit:cover; margin-bottom: 0;">
+        <div style="padding: 1.2rem;">
+          <h3 style="margin: 0.2rem 0; color: var(--accent);">🥗 Vegetarian Package</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.8rem;">Pure Veg Thali, Breakfast, Snacks & Regional Sweets</p>
+          <h2 style="color: var(--accent); margin: 0.5rem 0;">₹500 <small style="font-size:0.8rem; color:var(--text-muted); font-weight:normal;">/ Person (Fixed)</small></h2>
+          <button class="btn" style="width: 100%; margin-top: 0.8rem; background: var(--accent);" onclick="alert('Vegetarian Package Selected (₹500)')">Select Veg →</button>
+        </div>
+      </div>
+
+      <!-- 2. Non-Vegetarian Package -->
+      <div class="dash-card card" style="padding: 0; overflow: hidden; background: #ffffff;">
+        <img src="https://images.unsplash.com/photo-1633945274405-b6c8069047b0?w=500" alt="Non-Vegetarian Food" style="height: 180px; width:100%; object-fit:cover; margin-bottom: 0;">
+        <div style="padding: 1.2rem;">
+          <h3 style="margin: 0.2rem 0; color: #dc2626;">🍗 Non-Vegetarian Package</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.8rem;">Special Biryani, Seafood Delicacies & Chicken Gravies</p>
+          <h2 style="color: #dc2626; margin: 0.5rem 0;">₹900 <small style="font-size:0.8rem; color:var(--text-muted); font-weight:normal;">/ Person (Fixed)</small></h2>
+          <button class="btn" style="width: 100%; margin-top: 0.8rem; background: #dc2626;" onclick="alert('Non-Vegetarian Package Selected (₹900)')">Select Non-Veg →</button>
+        </div>
+      </div>
+
+      <!-- 3. Both Veg & Non-Veg Package -->
+      <div class="dash-card card" style="padding: 0; overflow: hidden; background: #ffffff;">
+        <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=500" alt="Both Veg & Non-Veg Food" style="height: 180px; width:100%; object-fit:cover; margin-bottom: 0;">
+        <div style="padding: 1.2rem;">
+          <h3 style="margin: 0.2rem 0; color: var(--primary);">🍲 Both Veg & Non-Veg Combo</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.8rem;">Assorted Buffet Combo: Veg & Non-Veg Multi-Cuisine Dishes</p>
+          <h2 style="color: var(--primary); margin: 0.5rem 0;">₹1200 <small style="font-size:0.8rem; color:var(--text-muted); font-weight:normal;">/ Person (Fixed)</small></h2>
+          <button class="btn" style="width: 100%; margin-top: 0.8rem;" onclick="alert('Both Veg & Non-Veg Combo Selected (₹1200)')">Select Both Combo →</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="btn-group" style="margin-top: 2rem;">
+      <a href="trip.html" class="btn" style="background: #64748b;">← Back</a>
+      <a href="hotel.html" class="btn">Next: Hotel Booking →</a>
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

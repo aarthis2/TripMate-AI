@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TripMate AI - Hotel Booking</title>
+  <style>
+    :root {
+      --primary: #0284c7;
+      --primary-dark: #0369a1;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --text: #0f172a;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      color: var(--text);
+      /* High Quality AI Luxury Hotel Background */
+      background: linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.65)), 
+                  url('https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=2070&auto=format&fit=crop') no-repeat center center fixed;
+      background-size: cover;
+      min-height: 100vh;
+    }
+
+    /* Centered Navigation Bar */
+    .navbar {
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(8px);
+      padding: 1rem 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .navbar .logo {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #38bdf8;
+      margin-bottom: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .nav-links {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1.2rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      color: #f1f5f9;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      transition: all 0.2s ease-in-out;
+    }
+
+    .nav-links a:hover, .nav-links a.active {
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.15);
+    }
+
+    .container {
+      max-width: 750px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      margin-bottom: 2rem;
+    }
+
+    /* LINE-BY-LINE FORM LAYOUT */
+    .form-group {
+      margin-bottom: 1.2rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      margin-bottom: 0.4rem;
+      font-weight: 700;
+      color: #1e293b;
+      font-size: 0.95rem;
+    }
+
+    select, input {
+      width: 100%;
+      padding: 0.8rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 1rem;
+      box-sizing: border-box;
+      outline: none;
+      background: #ffffff;
+    }
+
+    select:focus, input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.2);
+    }
+
+    .hotel-info-card {
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-radius: 12px;
+      padding: 1.2rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .hotel-img-preview {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      background-color: #e2e8f0;
+    }
+
+    .hotel-details p {
+      margin: 0.4rem 0;
+      font-size: 0.98rem;
+      color: #334155;
+    }
+
+    .hotel-details b {
+      color: var(--primary-dark);
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+      color: white;
+      border: none;
+      padding: 0.95rem 1.5rem;
+      font-size: 1.05rem;
+      font-weight: 700;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 1rem;
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      background: linear-gradient(135deg, #0369a1, #075985);
+    }
+
+    .btn-next {
+      background: linear-gradient(135deg, #10b981, #059669);
+      margin-top: 1.5rem;
+    }
+
+    .btn-next:hover {
+      background: linear-gradient(135deg, #059669, #047857);
+    }
+
+    .btn-secondary {
+      background: #64748b;
+      margin-top: 0.5rem;
+    }
+
+    .btn-secondary:hover {
+      background: #475569;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Centered Navigation Bar -->
+  <nav class="navbar">
+    <div class="logo">✨ TripMate AI</div>
+    <ul class="nav-links">
+      <li><a href="index.html">🏠 Home</a></li>
+      <li><a href="trip.html">✈️ Trip & Weather</a></li>
+      <li><a href="food.html">🍲 Food</a></li>
+      <li><a href="hotel.html" class="active">🏨 Hotel</a></li>
+      <li><a href="places.html">📍 Places</a></li>
+      <li><a href="style.html">👗 AI Style</a></li>
+      <li><a href="booking.html">💳 Booking</a></li>
+      <li><a href="login.html" onclick="alert('Logged out successfully!')">🚪 Logout</a></li>
+    </ul>
+  </nav>
+
+  <div class="container">
+    
+    <div class="card">
+      <h3 style="margin-top:0; color: var(--primary-dark); text-align: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.6rem;">
+        🏨 Hotel Booking & Accommodation
+      </h3>
+
+      <!-- Line 1: Select Destination City -->
+      <div class="form-group">
+        <label for="hotelCitySelect">Select Destination City:</label>
+        <select id="hotelCitySelect" onchange="updateHotelDetails()">
+          <!-- City options will load dynamically -->
+        </select>
+      </div>
+
+      <!-- Unique AI Hotel Details Card -->
+      <div class="hotel-info-card">
+        <img id="hotelAiImg" class="hotel-img-preview" src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=700" alt="AI Hotel Preview">
+        <div class="hotel-details">
+          <h3 id="hotelName" style="margin:0 0 0.5rem 0; color: var(--primary-dark);">Loading...</h3>
+          <p>📍 <b>Location:</b> <span id="hotelLoc">Loading...</span></p>
+          <p>📞 <b>Phone:</b> <span id="hotelPhone">Loading...</span></p>
+          <p>🛏️ <b>Single Bed (Fixed):</b> ₹<span id="singleFare">1500</span> / night</p>
+          <p>🛋️ <b>Double Bed (Fixed):</b> ₹<span id="doubleFare">2800</span> / night</p>
+        </div>
+      </div>
+
+      <!-- Line 2: Select Room Type -->
+      <div class="form-group">
+        <label for="roomType">Select Room Type:</label>
+        <select id="roomType">
+          <option value="Single Bedroom">Single Bedroom</option>
+          <option value="Double Bedroom">Double Bedroom</option>
+        </select>
+      </div>
+
+      <!-- Line 3: ID Card Number -->
+      <div class="form-group">
+        <label for="idCardNo">ID Card Number (Aadhaar / Passport):</label>
+        <input type="text" id="idCardNo" placeholder="Enter 12-digit Aadhaar / ID No.">
+      </div>
+
+      <!-- Line 4: Check-in Date -->
+      <div class="form-group">
+        <label for="checkInDate">Check-in Date:</label>
+        <input type="date" id="checkInDate">
+      </div>
+
+      <!-- Line 5: Check-out Date -->
+      <div class="form-group">
+        <label for="checkOutDate">Check-out Date:</label>
+        <input type="date" id="checkOutDate">
+      </div>
+
+      <!-- Action Buttons -->
+      <button class="btn" onclick="confirmHotelBooking()">
+        Confirm Hotel Booking →
+      </button>
+
+      <!-- Flow Navigation Buttons -->
+      <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+        <button class="btn btn-secondary" style="flex: 1;" onclick="window.location.href='food.html'">
+          ← Back to Food
+        </button>
+        <button class="btn btn-next" style="flex: 1;" onclick="window.location.href='places.html'">
+          Next: Famous Places 📍 →
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    // Full 50 Indian Cities List
+    const cities50 = [
+      "Madurai", "Kodaikanal", "Ooty", "Chennai", "Goa", "Munnar", "Coimbatore", "Bangalore", "Mysore", "Tirupati",
+      "Kanyakumari", "Rameshwaram", "Tanjore", "Trichy", "Pondicherry", "Alleppey", "Cochin", "Varkala", "Wayanad", "Coorg",
+      "Hyderabad", "Vizag", "Manali", "Shimla", "Dharamshala", "Jaipur", "Udaipur", "Agra", "Varanasi", "Rishikesh",
+      "Delhi", "Mumbai", "Pune", "Mahabaleshwar", "Lonavala", "Kolkata", "Darjeeling", "Gangtok", "Shillong", "Amritsar",
+      "Srinagar", "Gulmarg", "Leh Ladakh", "Nainital", "Mussoorie", "Gokarna", "Chikmagalur", "Hampi", "Badami", "Mangalore"
+    ];
+
+    // High Quality Hotel Images Array
+    const aiHotelImages = [
+      "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=700",
+      "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=700",
+      "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=700",
+      "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=700",
+      "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=700",
+      "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=700"
+    ];
+
+    // Function to calculate unique details per city
+    function getHotelData(cityName, index) {
+      const singleFare = 1200 + (index * 85) % 2200;
+      const doubleFare = singleFare + 1200 + (index * 65) % 1800;
+      const phoneNo = 9840000000 + (index * 345678) % 9000000;
+
+      const hotelPrefixes = ["Grand Palace", "Royal Heritage", "Skyline Resort", "Ocean View Inn", "Paradise Suites", "Crown Plaza", "Highland Residency"];
+      const name = `${hotelPrefixes[index % hotelPrefixes.length]} ${cityName}`;
+      const location = `No. ${(index + 1) * 7}, Main Avenue, Near Central Station, ${cityName}`;
+      const img = aiHotelImages[index % aiHotelImages.length];
+
+      return { name, location, phone: `+91 ${phoneNo}`, singleFare, doubleFare, img };
+    }
+
+    // Populate City Dropdown on Page Load
+    function initializeHotelPage() {
+      const citySelect = document.getElementById('hotelCitySelect');
+      citySelect.innerHTML = "";
+
+      cities50.forEach((city) => {
+        const opt = document.createElement('option');
+        opt.value = city;
+        opt.textContent = `${city}`;
+        citySelect.appendChild(opt);
+      });
+
+      // Load initial city data
+      updateHotelDetails();
+    }
+
+    // Update details when user picks a city
+    function updateHotelDetails() {
+      const citySelect = document.getElementById('hotelCitySelect');
+      const selectedCity = citySelect.value || "Madurai";
+      const idx = cities50.indexOf(selectedCity);
+      const data = getHotelData(selectedCity, idx >= 0 ? idx : 0);
+
+      document.getElementById('hotelName').innerText = data.name;
+      document.getElementById('hotelLoc').innerText = data.location;
+      document.getElementById('hotelPhone').innerText = data.phone;
+      document.getElementById('singleFare').innerText = data.singleFare;
+      document.getElementById('doubleFare').innerText = data.doubleFare;
+      document.getElementById('hotelAiImg').src = data.img;
+    }
+
+    // Booking confirmation alert
+    function confirmHotelBooking() {
+      const city = document.getElementById('hotelCitySelect').value;
+      const room = document.getElementById('roomType').value;
+      const idNo = document.getElementById('idCardNo').value;
+      const checkIn = document.getElementById('checkInDate').value;
+      const checkOut = document.getElementById('checkOutDate').value;
+
+      if (!idNo || !checkIn || !checkOut) {
+        alert('Please fill in ID Card Number, Check-in, and Check-out dates!');
+        return;
+      }
+
+      alert(`✅ Hotel Booking Confirmed!\n\nCity: ${city}\nHotel: ${document.getElementById('hotelName').innerText}\nRoom Type: ${room}\nCheck-in: ${checkIn}\nCheck-out: ${checkOut}`);
+    }
+
+    // Run as soon as page is ready
+    document.addEventListener('DOMContentLoaded', initializeHotelPage);
+    window.onload = initializeHotelPage;
+  </script>
+</body>
+</html>

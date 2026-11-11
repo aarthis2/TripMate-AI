@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login - TripMate AI</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body style="background-image: url('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1920');">
+  <header>
+    <h1>✨ TripMate AI</h1>
+  </header>
+
+  <div class="container" style="max-width: 400px; margin-top: 4rem;">
+    <h2>User Login</h2>
+    <div class="form-group"><label>Username / Email</label><input type="text" id="loginUser" placeholder="Enter username"></div>
+    <div class="form-group"><label>Password</label><input type="password" placeholder="Enter password"></div>
+    <button class="btn" onclick="handleLogin()" style="width:100%;">Login →</button>
+  </div>
+
+  <div id="popupModal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <h3 id="modalTitle" style="color: var(--accent);">Message</h3>
+      <p id="modalMsg"></p>
+      <button class="btn" onclick="closeModal()">OK</button>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

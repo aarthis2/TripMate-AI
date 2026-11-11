@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TripMate AI - Explore Top 5 Sightseeing Places (50 Cities)</title>
+  <style>
+    :root {
+      --primary: #0284c7;
+      --primary-dark: #0369a1;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --text: #0f172a;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0; padding: 0; color: var(--text);
+      background-color: #0f172a;
+      background: linear-gradient(rgba(15, 23, 42, 0.72), rgba(15, 23, 42, 0.72)),
+                  url('https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=1600&q=80') center/cover no-repeat fixed;
+      min-height: 100vh;
+      transition: background-image 0.6s;
+    }
+    .navbar {
+      background: rgba(15, 23, 42, 0.95); padding: 1rem 2rem;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .navbar .logo { font-size: 1.6rem; font-weight: 800; color: #38bdf8; margin-bottom: 0.6rem; text-transform: uppercase; letter-spacing: 1px; }
+    .nav-links { display: flex; justify-content: center; align-items: center; gap: 1.2rem; list-style: none; margin: 0; padding: 0; flex-wrap: wrap; }
+    .nav-links a { color: #f1f5f9; text-decoration: none; font-weight: 600; font-size: 0.95rem; padding: 0.4rem 0.8rem; border-radius: 6px; }
+    .nav-links a:hover, .nav-links a.active { color: #38bdf8; background: rgba(56, 189, 248, 0.15); }
+
+    .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
+    .card { background: var(--card-bg); padding: 2rem; border-radius: 16px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); margin-bottom: 2rem; }
+    .form-group { margin-bottom: 1.2rem; display: flex; flex-direction: column; }
+    label { margin-bottom: 0.4rem; font-weight: 700; color: #1e293b; font-size: 0.95rem; }
+    select { width: 100%; padding: 0.85rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; outline: none; background: #ffffff; }
+
+    .btn {
+      background: linear-gradient(135deg, #0284c7, #0369a1); color: white; border: none;
+      padding: 1rem 1.5rem; font-size: 1.1rem; font-weight: 700; border-radius: 8px;
+      cursor: pointer; width: 100%; margin-top: 1rem; transition: transform 0.2s;
+      display: block; text-align: center; text-decoration: none; box-sizing: border-box;
+    }
+    .btn:hover { transform: translateY(-2px); }
+
+    /* Small Next button (bottom right, below the place cards) */
+    .next-wrap { text-align: right; margin-top: 1.4rem; }
+    .next-small {
+      display: inline-block; background: linear-gradient(135deg, #16a34a, #15803d); color: #fff;
+      padding: 0.5rem 1.1rem; font-size: 0.9rem; font-weight: 700; border-radius: 8px;
+      text-decoration: none; transition: transform 0.2s;
+    }
+    .next-small:hover { transform: translateY(-2px); }
+
+    .places-header { text-align: center; color: var(--primary-dark); font-size: 1.4rem; margin-bottom: 1.5rem; border-bottom: 2px solid #cbd5e1; padding-bottom: 0.6rem; }
+    .places-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.2rem; }
+
+    .place-card {
+      background: #ffffff; border-radius: 10px; border: 1px solid #cbd5e1; overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08); text-align: center; display: flex;
+      flex-direction: column; justify-content: space-between; transition: transform 0.2s;
+    }
+    .place-card:hover { transform: translateY(-4px); }
+    .place-card img, .img-ph { width: 100%; height: 180px; object-fit: cover; background: #e2e8f0; display: block; }
+    .img-ph { display: flex; align-items: center; justify-content: center; color: #0369a1; font-weight: 600; padding: 10px; box-sizing: border-box; text-align: center; }
+    .place-info { padding: 0.8rem; }
+    .place-card h4 { margin: 0 0 0.4rem 0; color: #0284c7; font-size: 0.98rem; }
+    .place-card p { margin: 0; font-size: 0.85rem; color: #475569; line-height: 1.3; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="logo">✨ TripMate AI</div>
+    <ul class="nav-links">
+      <li><a href="index.html">🏠 Home</a></li>
+      <li><a href="trip.html">✈️ Trip & Weather</a></li>
+      <li><a href="food.html">🍲 Food</a></li>
+      <li><a href="hotel.html">🏨 Hotel</a></li>
+      <li><a href="places.html" class="active">📍 Places</a></li>
+      <li><a href="style.html">👗 AI Style</a></li>
+      <li><a href="booking.html">💳 Booking</a></li>
+      <li><a href="login.html" onclick="alert('Logged out successfully!')">🚪 Logout</a></li>
+    </ul>
+  </nav>
+
+  <div class="container">
+    <div class="card">
+      <h2 style="margin-top:0; color: var(--primary-dark); text-align: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.6rem;">
+        Explore Top 5 Sightseeing Places (50 Cities) 📍
+      </h2>
+      <div class="form-group">
+        <label for="citySelect">Please Select Destination City (50 Cities Available):</label>
+        <select id="citySelect">
+          <option value="" disabled selected>-- Select City --</option>
+        </select>
+      </div>
+      <button id="submitBtn" class="btn" type="button">Show Top 5 Sightseeing Places →</button>
+    </div>
+
+    <div id="resultCard" class="card hidden">
+      <div id="placesContent"></div>
+      <div class="next-wrap">
+        <a href="style.html" class="next-small">Next → AI Style 👗</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Format: "Name" or "Name, City" (text after comma is hidden on screen) or "Display Name|Wikipedia Title"
+    const DATA = {
+      "Madurai": "Meenakshi Amman Temple|Meenakshi Temple, Madurai;Thirumalai Nayak Palace;Gandhi Memorial Museum|Gandhi Memorial Museum, Madurai;Alagar Kovil|Kallazhagar Temple;Vandiyur Mariamman Teppakulam",
+      "Tanjore": "Brihadisvara Temple|Brihadisvara Temple, Thanjavur;Thanjavur Maratha Palace;Saraswathi Mahal Library;Airavatesvara Temple;Gangaikonda Cholapuram",
+      "Kodaikanal": "Kodaikanal Lake;Coaker's Walk;Pillar Rocks, Kodaikanal;Bryant Park, Kodaikanal;Guna Caves",
+      "Ooty": "Ooty Lake;Government Botanical Gardens, Ooty;Doddabetta;Nilgiri Mountain Railway;Pykara Lake|Pykara",
+      "Chennai": "Marina Beach;Kapaleeshwarar Temple;Fort St. George, India;San Thome Basilica;Government Museum, Chennai",
+      "Trichy": "Rock Fort, Tiruchirappalli;Ranganathaswamy Temple, Srirangam;Jambukeswarar Temple;Kallanai;Samayapuram Mariamman Temple",
+      "Rameshwaram": "Ramanathaswamy Temple;Pamban Bridge;Dhanushkodi;APJ Abdul Kalam Memorial|Dr. A. P. J. Abdul Kalam Memorial;Adam's Bridge",
+      "Kanyakumari": "Vivekananda Rock Memorial;Thiruvalluvar Statue;Kanyakumari Amman Temple|Devi Kanya Kumari Temple;Padmanabhapuram Palace;Gandhi Mandapam Kanyakumari",
+      "Pondicherry": "Promenade Beach, Puducherry;Matrimandir;Sri Aurobindo Ashram;Paradise Beach, Puducherry;Sacred Heart Basilica|Basilica of the Sacred Heart of Jesus, Puducherry",
+      "Coimbatore": "Marudhamalai;Adiyogi Shiva statue;VOC Park and Zoo;Perur Patteeswarar Temple;Siruvani Waterfalls",
+      "Kanchipuram": "Kailasanathar Temple, Kanchipuram;Ekambareswarar Temple, Kanchipuram;Kamakshi Amman Temple;Varadharaja Perumal Temple, Kanchipuram;Vaikunta Perumal Temple, Kanchipuram",
+      "Tirunelveli": "Nellaiappar Temple;Manimuthar Falls;Kalakkad Mundanthurai Tiger Reserve;Sulochana Mudaliar Bridge;Agasthiyar Falls",
+      "Salem": "Yercaud;Mettur Dam;Sugavaneswarar Temple, Salem;Kiliyur Falls;Shevaroy Hills",
+      "Erode": "Bhavanisagar Dam;Sangameshwarar Temple, Bhavani;Kodiveri Dam;Periyar Memorial House, Erode;Vellode Bird Sanctuary",
+      "Vellore": "Vellore Fort;Sripuram Golden Temple|Sripuram;Jalagandeeswarar Temple;Christian Medical College, Vellore;Amirthi",
+      "Goa": "Basilica of Bom Jesus;Calangute;Fort Aguada;Dudhsagar Falls;Sé Cathedral, Goa",
+      "Delhi": "India Gate;Red Fort;Qutb Minar;Humayun's Tomb;Lotus Temple",
+      "Mumbai": "Gateway of India;Marine Drive, Mumbai;Chhatrapati Shivaji Maharaj Terminus;Elephanta Caves;Haji Ali Dargah",
+      "Agra": "Taj Mahal;Agra Fort;Fatehpur Sikri;Tomb of I'timād-ud-Daulah;Mehtab Bagh",
+      "Jaipur": "Hawa Mahal;Amer Fort;City Palace, Jaipur;Jantar Mantar, Jaipur;Nahargarh Fort",
+      "Udaipur": "City Palace, Udaipur;Lake Pichola;Jag Mandir;Saheliyon Ki Bari;Sajjangarh Monsoon Palace|Sajjangarh Palace",
+      "Varanasi": "Dashashwamedh Ghat;Kashi Vishwanath Temple;Sarnath;Manikarnika Ghat;Ramnagar Fort",
+      "Bangalore": "Lalbagh Botanical Garden|Lalbagh;Bangalore Palace;Cubbon Park;Vidhana Soudha;ISKCON Temple Bangalore",
+      "Hyderabad": "Charminar;Golconda;Hussain Sagar;Ramoji Film City;Chowmahalla Palace",
+      "Pune": "Shaniwar Wada;Aga Khan Palace;Sinhagad;Dagdusheth Halwai Ganpati Temple;Parvati Hill",
+      "Tirupati": "Tirumala Venkateswara Temple|Venkateswara Temple, Tirumala;Padmavathi Temple|Padmavathi Temple, Tiruchanoor;Kapila Theertham;Chandragiri Fort;Talakona",
+      "Kolkata": "Victoria Memorial, Kolkata;Howrah Bridge;Dakshineswar Kali Temple;Indian Museum, Kolkata;Belur Math",
+      "Ahmedabad": "Sabarmati Ashram;Adalaj Stepwell;Sidi Saiyyed Mosque;Hutheesing Jain Temple;Kankaria Lake",
+      "Amritsar": "Golden Temple;Jallianwala Bagh;Wagah;Durgiana Temple;Partition Museum",
+      "Mysore": "Mysore Palace;Chamundeshwari Temple;Brindavan Gardens, Mysore;Mysore Zoo;St. Philomena's Cathedral, Mysore",
+      "Kochi": "Chinese fishing nets;Mattancherry Palace;Paradesi Synagogue;Santa Cruz Basilica, Kochi;Marine Drive, Kochi",
+      "Alleppey": "Vembanad;Alappuzha Beach;Marari Beach;Krishnapuram Palace;Kuttanad",
+      "Wayanad": "Edakkal Caves;Banasura Sagar Dam;Soochipara Falls;Chembra Peak;Pookode Lake",
+      "Munnar": "Eravikulam National Park;Mattupetty Dam;Anamudi;Kundala Lake;Tea Museum Munnar",
+      "Coorg": "Abbey Falls;Raja's Seat;Dubare;Namdroling Monastery;Talakaveri",
+      "Vizag": "Ramakrishna Beach, Visakhapatnam;Kailasagiri;INS Kurusura Submarine Museum;Borra Caves;Simhachalam Temple",
+      "Manali": "Hidimba Devi Temple;Rohtang Pass;Solang Valley;Manu Temple, Manali;Vashisht Temple",
+      "Shimla": "The Ridge, Shimla;Jakhu Temple;Christ Church, Shimla;Kufri;Viceregal Lodge, Shimla",
+      "Srinagar": "Dal Lake;Shalimar Bagh, Srinagar;Nishat Bagh;Hazratbal Shrine;Shankaracharya Temple",
+      "Leh Ladakh": "Leh Palace;Shanti Stupa|Shanti Stupa (Leh);Pangong Tso;Thiksey Monastery;Magnetic Hill, Ladakh",
+      "Jodhpur": "Mehrangarh;Umaid Bhawan Palace;Jaswant Thada;Mandore, Jodhpur;Ghanta Ghar, Jodhpur",
+      "Jaisalmer": "Jaisalmer Fort;Patwon Ki Haveli;Sam Sand Dunes;Gadisar Lake;Bada Bagh",
+      "Rishikesh": "Lakshman Jhula;Ram Jhula;Triveni Ghat, Rishikesh;Beatles Ashram|Maharishi Mahesh Yogi's ashram;Neelkanth Mahadev Temple",
+      "Haridwar": "Har Ki Pauri;Mansa Devi Temple;Chandi Devi Temple;Maya Devi Temple;Bharat Mata Mandir",
+      "Darjeeling": "Tiger Hill, Darjeeling;Darjeeling Himalayan Railway;Batasia Loop;Peace Pagoda, Darjeeling;Padmaja Naidu Himalayan Zoological Park",
+      "Gangtok": "Rumtek Monastery;Tsomgo Lake;Nathu La;Hanuman Tok;Enchey Monastery",
+      "Shillong": "Elephant Falls;Shillong Peak;Umiam Lake;Don Bosco Centre for Indigenous Cultures;Ward's Lake",
+      "Bhubaneswar": "Lingaraja Temple;Udayagiri and Khandagiri Caves;Dhauli;Mukteshvara Temple;Odisha State Museum",
+      "Puri": "Jagannath Temple, Puri;Puri Beach;Konark Sun Temple;Chilika Lake;Raghurajpur",
+      "Gwalior": "Gwalior Fort;Jai Vilas Palace;Man Mandir Palace, Gwalior;Teli ka Mandir;Sas Bahu Temples, Gwalior"
+    };
+
+    // Exact, verified Wikimedia Commons photos (file names) for places where search gave wrong/no photo.
+    // f = list of Commons file names (first one is used, others are backup), d = short description
+    const PHOTO = {
+      "sangameshwarar temple": { f: ["Bhavani sangameswarar temple2.jpg", "Sangameswarar Temple 1.jpg", "Sangameswarar2.jpg"],
+        d: "Ancient Shiva temple at the sacred confluence of the Kaveri and Bhavani rivers." },
+      "lalbagh botanical garden": { f: ["Glasshouse and fountain at lalbagh.jpg", "Bangalore Glasshouse.jpg"],
+        d: "Historic botanical garden famous for its 1889 Glass House and flower shows." },
+      "bryant park": { f: ["Bryant Park, Kodaikanal.jpg", "Bryant Park, Kodaikanal 1.jpg", "Flower Show in Bryant Park, Kodaikanal.jpg"],
+        d: "Well-maintained botanical garden beside Kodaikanal Lake, known for its flower show." },
+      "solang valley": { f: ["Solang valley mountain view.jpg", "Solang Valley ,Manali, Himachal Pardes, India.JPG", "Solang Valley 2.jpg"],
+        d: "Scenic side valley near Manali, popular for paragliding and skiing." },
+      "nathu la": { f: ["Nathu La Pass - Layered Road.jpg", "Nathu La Border.jpg", "Nathu La - Indo China Border.jpg"],
+        d: "High Himalayan mountain pass on the India-China border in Sikkim." },
+      "don bosco centre for indigenous cultures": { f: ["Don Bosco Centre for Indigenous Culture.jpg", "Shillong City from Don Bosco Museum.jpg"],
+        d: "Seven-storey museum showcasing the indigenous cultures of North East India." }
+    };
+    const commonsUrl = name => 'https://commons.wikimedia.org/wiki/Special:FilePath/' +
+      encodeURIComponent(name.replace(/ /g, '_')) + '?width=900';
+
+    // Special exact photo search (Wikimedia Commons) for places where the normal photo was wrong.
+    // Format: "place name (lowercase)": [ search text, [any one must be in photo file name], [any one must be in photo name/description/category] ]
+    const FIX = {
+      "pillar rocks": ["Pillar Rocks Kodaikanal", ["pillar"], ["kodaikanal"]],
+      "guna caves": ["Guna Caves Kodaikanal", ["guna"], ["kodaikanal", "devil"]],
+      "pykara lake": ["Pykara Lake Ooty", ["pykara"], ["pykara", "ooty", "nilgiri"]],
+      "kanyakumari amman temple": ["Kumari Amman Temple Kanyakumari", ["amman", "temple", "devi", "bhagavathy", "kumari"], ["kanyakumari", "kanniyakumari", "cape comorin"]],
+      "thiruvalluvar statue": ["Thiruvalluvar Statue Kanyakumari", ["valluvar"], ["kanyakumari", "kanniyakumari"]],
+      "sri aurobindo ashram": ["Sri Aurobindo Ashram Pondicherry", ["ashram"], ["pondicherry", "puducherry"]],
+      "manimuthar falls": ["Manimuthar Falls", ["manimuthar", "manimutharu"], ["manimuthar", "tirunelveli", "ambasamudram"]],
+      "sulochana mudaliar bridge": ["Sulochana Mudaliar Bridge Tirunelveli", ["sulochana", "bridge", "thamirabarani", "tamirabarani"], ["tirunelveli", "palayamkottai", "sulochana"]],
+      "agasthiyar falls": ["Agasthiyar Falls Papanasam", ["agasthiyar", "agastiyar", "agastya", "papanasam"], ["papanasam", "agasthiyar", "agastiyar", "tirunelveli"]],
+      "periyar memorial house": ["Periyar Memorial House Erode", ["periyar"], ["erode"]],
+      "sripuram golden temple": ["Sripuram Golden Temple Vellore", ["sripuram", "golden"], ["vellore", "sripuram"]],
+      "jalagandeeswarar temple": ["Jalagandeeswarar Temple Vellore", ["jalag", "jalak"], ["vellore"]],
+      "nahargarh fort": ["Nahargarh Fort Jaipur", ["nahargarh"], ["jaipur", "nahargarh"]],
+      "sajjangarh monsoon palace": ["Sajjangarh Monsoon Palace Udaipur", ["sajjangarh", "monsoon"], ["udaipur", "sajjangarh"]],
+      "padmavathi temple": ["Padmavathi Temple Tiruchanoor", ["padmavathi", "padmavati", "tiruchanoor"], ["tiruchanoor", "tirupati", "padmavathi", "padmavati"]],
+      "kapila theertham": ["Kapila Theertham Tirupati", ["kapila"], ["tirupati", "tirumala", "kapila"]],
+      "eravikulam national park": ["Eravikulam National Park", ["eravikulam"], ["eravikulam", "munnar"]],
+      "kundala lake": ["Kundala Lake Munnar", ["kundala"], ["munnar", "kundala"]],
+      "ramakrishna beach": ["Ramakrishna Beach Visakhapatnam", ["ramakrishna", "rk beach", "r.k"], ["visakhapatnam", "vizag"]],
+      "ins kurusura submarine museum": ["INS Kurusura Submarine Museum Visakhapatnam", ["kurusura", "kursura", "submarine"], ["visakhapatnam", "vizag", "kurusura", "kursura"]],
+      "pangong tso": ["Pangong Tso Ladakh", ["pangong", "pangung"], ["pangong", "ladakh", "leh"]],
+      "darjeeling himalayan railway": ["Darjeeling Himalayan Railway toy train", ["himalayan", "toy", "dhr", "railway", "train", "ghum"], ["darjeeling"]],
+      "man mandir palace": ["Man Mandir Palace Gwalior Fort", ["man mandir", "mansingh", "man singh", "gwalior fort", "gwalior"], ["gwalior"]]
+    };
+
+    // Extra names for each city, used to make sure a search result really belongs to that city
+    const ALIAS = {
+      "Tanjore": ["thanjavur"], "Trichy": ["tiruchirappalli", "tiruchi", "srirangam"], "Rameshwaram": ["rameswaram"],
+      "Pondicherry": ["puducherry"], "Bangalore": ["bengaluru"], "Mysore": ["mysuru"], "Vizag": ["visakhapatnam"],
+      "Alleppey": ["alappuzha", "kuttanad"], "Leh Ladakh": ["leh", "ladakh"], "Kochi": ["cochin", "ernakulam"],
+      "Kanchipuram": ["kanchi"], "Tirunelveli": ["nellai", "tenkasi", "tamil nadu"], "Coorg": ["kodagu", "madikeri"],
+      "Tirupati": ["tirumala", "tiruchanoor"], "Delhi": ["new delhi"], "Kolkata": ["calcutta"],
+      "Vellore": ["tamil nadu"], "Salem": ["yercaud"], "Kanyakumari": ["kumari"], "Rishikesh": ["rishikesh"]
+    };
+    const GENERIC = new Set(['the','and','temple','fort','palace','beach','lake','falls','waterfalls','park','garden','gardens',
+      'museum','dam','hill','hills','peak','caves','cave','bagh','shrine','church','basilica','national','sanctuary','zoo','of','statue']);
+
+    const API = 'https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&';
+    const COMMONS = 'https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&';
+
+    const citySelect = document.getElementById('citySelect');
+    Object.keys(DATA).forEach((c, i) => citySelect.add(new Option((i + 1) + '. ' + c, c)));
+
+    const used = new Set();
+    let cache = {};
+    try { cache = JSON.parse(localStorage.getItem('tm_img_v8') || '{}'); } catch (e) {}
+    const saveCache = () => { try { localStorage.setItem('tm_img_v8', JSON.stringify(cache)); } catch (e) {} };
+    let runId = 0;
+
+    const parse = s => {
+      const [d, t] = s.split('|');
+      return { name: t ? d.trim() : d.split(',')[0].trim(), title: (t || d).trim() };
+    };
+    const aliases = city => [city.toLowerCase()].concat(ALIAS[city] || []);
+    const tokens = (name, al) => {
+      const alWords = al.join(' ').split(' ');
+      const all = name.toLowerCase().replace(/[^a-z0-9 ]/g, ' ').split(/\s+/).filter(w => w.length > 2);
+      const t = all.filter(w => !GENERIC.has(w) && !alWords.includes(w));
+      return t.length ? t : all;
+    };
+    const firstSentence = ex => {
+      let d = (ex || '').replace(/\s*\([^)]*\)/g, '').trim().split(/(?<=\.)\s/)[0] || '';
+      return d.length > 120 ? d.slice(0, 117) + '...' : d;
+    };
+    async function getJSON(u) {
+      const r = await fetch(u);
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    }
+    const okPage = p => p && !p.missing && p.thumbnail && !(p.pageprops && p.pageprops.disambiguation) && !used.has(p.thumbnail.source);
+
+    // Special search for the places listed in FIX (Wikimedia Commons: checks file name + description + category)
+    async function viaFix(it, city) {
+      const fx = FIX[it.name.toLowerCase()];
+      if (!fx) return null;
+      const [q, mt, rg] = fx;
+      const queries = [q, it.name + ' ' + city, it.name];
+      for (const qq of queries) {
+        const u = COMMONS + 'generator=search&gsrnamespace=6&gsrlimit=30&gsrsearch=' + encodeURIComponent(qq) +
+          '&prop=imageinfo&iiprop=url|mime|extmetadata&iiurlwidth=1000&iiextmetadatafilter=ImageDescription|Categories';
+        const j = await getJSON(u);
+        const pages = Object.values((j.query && j.query.pages) || {}).sort((a, b) => a.index - b.index);
+        const hit = pages.find(p => {
+          const i = p.imageinfo && p.imageinfo[0];
+          if (!i || !/jpe?g/.test(i.mime) || used.has(i.thumburl)) return false;
+          const title = p.title.toLowerCase();
+          const em = i.extmetadata || {};
+          const text = (title + ' ' + ((em.ImageDescription && em.ImageDescription.value) || '') + ' ' +
+            ((em.Categories && em.Categories.value) || '')).toLowerCase();
+          return mt.some(t => title.includes(t)) && rg.some(t => text.includes(t));
+        });
+        if (hit) return { img: hit.imageinfo[0].thumburl, desc: '' };
+      }
+      return null;
+    }
+
+    // Step 1: exact Wikipedia article titles
+    async function exact(items) {
+      const titles = items.map(i => i.title);
+      const u = API + 'titles=' + encodeURIComponent(titles.join('|')) + '&redirects=1&prop=pageimages|extracts|pageprops' +
+        '&piprop=thumbnail&pithumbsize=1000&exintro=1&explaintext=1&exsentences=1&exlimit=max&ppprop=disambiguation';
+      const q = (await getJSON(u)).query || {};
+      const norm = {}, red = {}, byTitle = {};
+      (q.normalized || []).forEach(n => norm[n.from] = n.to);
+      (q.redirects || []).forEach(r => red[r.from] = r.to);
+      Object.values(q.pages || {}).forEach(p => byTitle[p.title] = p);
+      return titles.map(t => {
+        let n = norm[t] || t; n = red[n] || n;
+        const p = byTitle[n];
+        return okPage(p) ? { img: p.thumbnail.source, desc: firstSentence(p.extract) } : null;
+      });
+    }
+
+    // Step 2: Wikipedia search, only accepted if the title matches the place AND the page mentions the city
+    async function viaSearch(it, city) {
+      const al = aliases(city), tk = tokens(it.name, al);
+      const u = API + 'generator=search&gsrlimit=8&gsrsearch=' + encodeURIComponent(it.name + ' ' + city) +
+        '&prop=pageimages|extracts|pageprops&piprop=thumbnail&pithumbsize=1000&exintro=1&explaintext=1&exsentences=3&exlimit=max&ppprop=disambiguation';
+      const j = await getJSON(u);
+      const pages = Object.values((j.query && j.query.pages) || {}).sort((a, b) => a.index - b.index);
+      const hit = pages.find(p => okPage(p) &&
+        tk.some(t => p.title.toLowerCase().includes(t)) &&
+        al.some(a => (p.title + ' ' + (p.extract || '')).toLowerCase().includes(a)));
+      return hit ? { img: hit.thumbnail.source, desc: firstSentence(hit.extract) } : null;
+    }
+
+    // Step 3: Wikimedia Commons photo, only if the file name has the place name AND the city name
+    async function viaCommons(it, city) {
+      const al = aliases(city), tk = tokens(it.name, al);
+      const u = COMMONS + 'generator=search&gsrnamespace=6&gsrlimit=10&gsrsearch=' + encodeURIComponent(it.name + ' ' + city) +
+        '&prop=imageinfo&iiprop=url|mime&iiurlwidth=1000';
+      const j = await getJSON(u);
+      const pages = Object.values((j.query && j.query.pages) || {}).sort((a, b) => a.index - b.index);
+      const hit = pages.find(p => {
+        const i = p.imageinfo && p.imageinfo[0];
+        const title = p.title.toLowerCase();
+        return i && /jpe?g/.test(i.mime) && !used.has(i.thumburl) &&
+          tk.every(t => title.includes(t)) && al.some(a => title.includes(a));
+      });
+      return hit ? { img: hit.imageinfo[0].thumburl, desc: '' } : null;
+    }
+
+    function paint(i, name, r, city, first) {
+      const card = document.getElementById('pc' + i);
+      if (!card) return;
+      const ph = card.querySelector('.img-ph');
+      if (r && r.img) {
+        const im = new Image();
+        im.alt = name;
+        const backup = (r.alts || []).slice();
+        im.onerror = () => {
+          if (backup.length) { im.src = backup.shift(); }
+          else { im.outerHTML = '<div class="img-ph">📷 ' + name + '</div>'; }
+        };
+        im.src = r.img;
+        ph.replaceWith(im);
+        card.querySelector('p').textContent = r.desc || ('Famous sightseeing place in ' + city + '.');
+        if (first) {
+          document.body.style.backgroundImage =
+            "linear-gradient(rgba(15,23,42,0.72), rgba(15,23,42,0.72)), url('" + r.img + "')";
+        }
+      } else {
+        ph.textContent = '📷 ' + name;
+        card.querySelector('p').textContent = 'Famous sightseeing place in ' + city + '.';
+      }
+    }
+
+    document.getElementById('submitBtn').addEventListener('click', async function () {
+      const city = citySelect.value;
+      if (!city) { alert("Please select a city first!"); return; }
+
+      const my = ++runId;
+      const items = DATA[city].split(';').map(parse);
+      used.clear();
+
+      let html = '<div class="places-header"><h3>Top 5 Sightseeing Places in <u>' + city + '</u></h3></div>' +
+        '<div id="errMsg" style="color:#c00;text-align:center;margin-bottom:10px"></div><div class="places-grid">';
+      items.forEach((it, i) => {
+        html += '<div class="place-card" id="pc' + i + '"><div class="img-ph">Loading real photo...</div>' +
+          '<div class="place-info"><h4>📍 ' + it.name + '</h4><p></p></div></div>';
+      });
+      html += '</div>';
+      document.getElementById('placesContent').innerHTML = html;
+      const resCard = document.getElementById('resultCard');
+      resCard.classList.remove('hidden');
+      resCard.scrollIntoView({ behavior: 'smooth' });
+
+      const res = new Array(items.length).fill(null);
+      let netErr = '', bgDone = false;
+
+      items.forEach((it, i) => {
+        const key = it.name.toLowerCase();
+        // 1) Verified exact photos first
+        if (PHOTO[key]) {
+          const urls = PHOTO[key].f.map(commonsUrl);
+          res[i] = { img: urls[0], alts: urls.slice(1), desc: PHOTO[key].d };
+          used.add(urls[0]);
+          return;
+        }
+        // 2) Cached photos
+        const c = cache[city + '|' + it.name];
+        if (c && !used.has(c.img)) { res[i] = c; used.add(c.img); }
+      });
+
+      // Special places (exact Commons search)
+      for (let i = 0; i < items.length; i++) {
+        if (res[i] || !FIX[items[i].name.toLowerCase()]) continue;
+        try {
+          const r = await viaFix(items[i], city);
+          if (my !== runId) return;
+          if (r) { res[i] = r; used.add(r.img); }
+        } catch (e) { netErr = e.message; }
+      }
+
+      if (res.some(r => !r)) {
+        try {
+          const ex = await exact(items);
+          ex.forEach((r, i) => { if (!res[i] && r && !used.has(r.img)) { res[i] = r; used.add(r.img); } });
+        } catch (e) { netErr = e.message; }
+      }
+      if (my !== runId) return;
+
+      res.forEach((r, i) => {
+        if (r) {
+          if (!PHOTO[items[i].name.toLowerCase()]) cache[city + '|' + items[i].name] = r;
+          paint(i, items[i].name, r, city, !bgDone);
+          bgDone = true;
+        }
+      });
+      saveCache();
+
+      for (let i = 0; i < items.length; i++) {
+        if (res[i]) continue;
+        let r = null;
+        try { r = await viaSearch(items[i], city); } catch (e) { netErr = e.message; }
+        if (!r) { try { r = await viaCommons(items[i], city); } catch (e) { netErr = e.message; } }
+        if (my !== runId) return;
+        if (r) { used.add(r.img); cache[city + '|' + items[i].name] = r; saveCache(); }
+        paint(i, items[i].name, r, city, r && !bgDone);
+        if (r) bgDone = true;
+      }
+      if (netErr && my === runId) {
+        document.getElementById('errMsg').textContent = 'Image load problem: ' + netErr + ' (check internet / firewall)';
+      }
+    });
+  </script>
+</body>
+</html>

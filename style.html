@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TripMate AI - AI Destination Style Predictor</title>
+  <style>
+    :root { --primary:#0284c7; --primary-dark:#0369a1; --card-bg:rgba(255,255,255,0.95); --text:#0f172a; }
+    body {
+      font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif; margin:0; padding:0; color:var(--text);
+      background:linear-gradient(rgba(15,23,42,0.85),rgba(15,23,42,0.85)),
+                 url('https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1920&q=80') center/cover no-repeat fixed;
+      min-height:100vh;
+    }
+    .navbar { background:rgba(15,23,42,0.95); backdrop-filter:blur(8px); padding:1rem 2rem; display:flex; flex-direction:column;
+      align-items:center; justify-content:center; box-shadow:0 4px 20px rgba(0,0,0,0.3); border-bottom:1px solid rgba(255,255,255,0.1); }
+    .navbar .logo { font-size:1.6rem; font-weight:800; color:#38bdf8; margin-bottom:0.6rem; text-transform:uppercase; letter-spacing:1px; }
+    .nav-links { display:flex; justify-content:center; align-items:center; gap:1.2rem; list-style:none; margin:0; padding:0; flex-wrap:wrap; }
+    .nav-links a { color:#f1f5f9; text-decoration:none; font-weight:600; font-size:0.95rem; padding:0.4rem 0.8rem; border-radius:6px; transition:all 0.2s ease-in-out; }
+    .nav-links a:hover, .nav-links a.active { color:#38bdf8; background:rgba(56,189,248,0.15); }
+    .container { max-width:1000px; margin:2rem auto; padding:0 1rem; }
+    .card { background:var(--card-bg); backdrop-filter:blur(10px); padding:2rem; border-radius:16px; box-shadow:0 10px 25px rgba(0,0,0,0.2); margin-bottom:2rem; }
+    .form-group { margin-bottom:1.2rem; display:flex; flex-direction:column; }
+    label { margin-bottom:0.4rem; font-weight:700; color:#1e293b; font-size:0.95rem; }
+    select { width:100%; padding:0.85rem; border:1px solid #cbd5e1; border-radius:8px; font-size:1rem; box-sizing:border-box; outline:none; background:#fff; }
+    .gender-group { display:flex; gap:1.5rem; margin-top:0.4rem; }
+    .gender-option { display:flex; align-items:center; gap:0.5rem; font-weight:600; font-size:1rem; cursor:pointer; }
+    .gender-option input { width:18px; height:18px; cursor:pointer; }
+    .btn { background:linear-gradient(135deg,#0284c7,#0369a1); color:#fff; border:none; padding:1rem 1.5rem; font-size:1.1rem; font-weight:700;
+      border-radius:8px; cursor:pointer; width:100%; margin-top:1rem; transition:transform 0.2s; }
+    .btn:hover { transform:translateY(-2px); }
+    .btn-next { background:linear-gradient(135deg,#10b981,#059669); margin-top:1.5rem; }
+    .style-box { background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:1.5rem; }
+    .style-header { border-bottom:2px solid #cbd5e1; padding-bottom:0.8rem; margin-bottom:1.2rem; }
+    .style-header h3 { margin:0; color:var(--primary-dark); font-size:1.3rem; }
+    .outfit-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1.2rem; }
+    .outfit-card { background:#fff; border-radius:10px; border:1px solid #cbd5e1; overflow:hidden; box-shadow:0 4px 10px rgba(0,0,0,0.05);
+      text-align:center; display:flex; flex-direction:column; justify-content:space-between; }
+    .art { width:100%; height:200px; background:#f1f5f9; display:flex; align-items:center; justify-content:center; }
+    .art svg { width:100%; height:100%; }
+    .art img { width:100%; height:100%; object-fit:cover; }
+    .outfit-info { padding:0.8rem; }
+    .outfit-card h4 { margin:0 0 0.4rem 0; color:#0284c7; font-size:0.98rem; }
+    .outfit-card p { margin:0; font-size:0.95rem; color:#334155; font-weight:600; line-height:1.4; }
+    .acc-card { grid-column:1 / -1; padding:0.9rem; }
+    .acc-card > h4 { margin:0 0 0.8rem 0; color:#0284c7; font-size:1.05rem; }
+    .acc-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:0.8rem; }
+    .tile { background:#fff; border:1px solid #e2e8f0; border-radius:8px; overflow:hidden; }
+    .tile .art { height:140px; }
+    .tile p { margin:0; padding:0.5rem; font-size:0.9rem; color:#334155; font-weight:600; }
+    .predict { background:#e0f2fe; border-left:4px solid var(--primary); padding:0.8rem 1rem; margin-top:1.2rem; border-radius:0 8px 8px 0;
+      font-size:0.95rem; color:#0369a1; font-weight:600; line-height:1.5; }
+    .hidden { display:none !important; }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="logo">✨ TripMate AI</div>
+    <ul class="nav-links">
+      <li><a href="index.html">🏠 Home</a></li>
+      <li><a href="trip.html">✈️ Trip & Weather</a></li>
+      <li><a href="food.html">🍲 Food</a></li>
+      <li><a href="hotel.html">🏨 Hotel</a></li>
+      <li><a href="places.html">📍 Places</a></li>
+      <li><a href="style.html" class="active">👗 AI Style</a></li>
+      <li><a href="booking.html">💳 Booking</a></li>
+      <li><a href="login.html" onclick="alert('Logged out successfully!')">🚪 Logout</a></li>
+    </ul>
+  </nav>
+
+  <div class="container">
+    <div class="card">
+      <h2 style="margin-top:0; color:var(--primary-dark); text-align:center; border-bottom:2px solid #e2e8f0; padding-bottom:0.6rem;">
+        👗 AI Destination Style Predictor 🕶️
+      </h2>
+
+      <div class="form-group">
+        <label for="styleCity">1. Select Destination City (50 Cities):</label>
+        <select id="styleCity">
+          <option value="" disabled selected>-- Select City --</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>2. Kindly Choose Your Styling Preference:</label>
+        <div class="gender-group">
+          <label class="gender-option"><input type="radio" name="genderPref" value="Men" checked> 👨 Men</label>
+          <label class="gender-option"><input type="radio" name="genderPref" value="Women"> 👩 Women</label>
+        </div>
+      </div>
+
+      <button id="submitBtn" class="btn" type="button">✨ Get AI Style Prediction →</button>
+    </div>
+
+    <div id="styleResultCard" class="card hidden">
+      <div id="styleContent"></div>
+      <button class="btn btn-next" onclick="window.location.href='booking.html'" type="button">
+        Proceed to Checkout & Booking 💳 →
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // ================= DATA: every item = [name shown on screen, picture key] =================
+    const FW = {
+      TEMPLE: { M:["Leather Chappals","sandal","🩴 Slippers"],        W:["Flat Slides","slide","🩴 Slippers"] },
+      HUMID:  { M:["Flip-flops","flip-flops","🩴 Slippers"],          W:["Flat Slides","slide","🩴 Slippers"] },
+      BEACH:  { M:["Beach Flip-flops","flip-flops","🩴 Slippers"],    W:["Beach Slides","slide","🩴 Slippers"] },
+      HILL:   { M:["Trekking Shoes","hiking boots","👟 Shoes"],       W:["Ankle Boots","boot","👟 Shoes"] },
+      COLD:   { M:["Snow Boots","snow boots","👟 Shoes (Boots)"],     W:["Winter Boots","boot","👟 Shoes (Boots)"] },
+      DESERT: { M:["Mojari (Jutti)","mojari","🩴 Slippers"],          W:["Kolhapuri Chappals","kolhapuri chappal","🩴 Slippers"] },
+      URBAN:  { M:["Casual Sandals","sandal","🩴 Slippers"],          W:["Flat Slides","slide","🩴 Slippers"] },
+      NORTH:  { M:["Kolhapuri Chappals","kolhapuri chappal","🩴 Slippers"], W:["Mojari (Jutti)","mojari","🩴 Slippers"] }
+    };
+
+    const Sh=["Shirt","shirt"], Ku=["Kurta","kurta"], Ve=["Veshti","veshti"], Dh=["Dhoti","dhoti"], Mu=["Mundu","mundu"], Pj=["Pyjama","pyjama"],
+          Tr=["Trousers","trousers"], Sw=["Sweater","sweater"], Jk=["Jacket","jacket"], Sho=["Shorts","shorts"];
+    const rud=["Rudraksha Mala","rudraksha"], chn=["Gold Chain","gold chain"], rng=["Ring","ring"], kda=["Kada (Bracelet)","bracelet"],
+          wch=["Wristwatch","wristwatch"], tul=["Tulsi Mala","kanthi mala"], tur=["Turban (Safa)","turban"], sun=["Sunglasses","sunglasses"],
+          scf=["Muffler / Scarf","scarf"], kra=["Kara","kara"], bni=["Woollen Cap","beanie"], kul=["Kullu Cap (Topi)","kullu"];
+    const Bl=["Blouse","blouse"], Sa=["Cotton Saree","saree"], Sl=["Salwar","salwar kameez"], Kt=["Kurta","kurti"], Ch=["Choli","choli"], Gh=["Ghagra","ghagra"];
+    const jhm=["Jhumkas","jhumka"], bng=["Bangles","bangle"], ank=["Anklets (Kolusu / Payal)","anklet"], jas=["Jasmine Flowers (Malligai)","jasmine"],
+          mgs=["Mangalsutra (Thali)","mangalsutra"], nck=["Necklace","necklace"], kun=["Kundan Jewellery","kundan"], nth=["Nath (Nose Ring)","nath"],
+          tmj=["Temple Jewellery","temple jewellery"], slv=["Silver Necklace","silver"], pnk=["Pearl Necklace","pearl necklace"];
+
+    // City = [footwear type, [Men: top, bottom, [accessories]], [Women: top, bottom, [accessories]]]
+    const C = {
+      "Madurai":      ["TEMPLE",[Sh,Ve,[rud,chn,rng,kda]],[Bl,["Sungudi Saree","sungudi saree"],[jhm,chn,bng,ank,jas]]],
+      "Tanjore":      ["TEMPLE",[Sh,Ve,[rud,chn,rng,kda]],[Bl,["Kanjivaram Silk Saree","kanchipuram saree"],[tmj,jhm,bng,jas]]],
+      "Kodaikanal":   ["HILL",[Sw,Tr,[bni,scf,wch]],[["Sweater","sweater"],Sl,[scf,chn]]],
+      "Ooty":         ["HILL",[Sw,Tr,[bni,scf,wch]],[["Sweater","sweater"],Sl,[scf,jhm]]],
+      "Chennai":      ["HUMID",[Sh,Ve,[chn,rng,wch]],[Bl,["Kanjivaram Silk Saree","kanchipuram saree"],[jhm,chn,bng,ank,jas]]],
+      "Trichy":       ["TEMPLE",[Sh,Ve,[tul,chn,rng]],[Bl,["Madisar Saree","madisar saree"],[jhm,mgs,bng,jas]]],
+      "Rameshwaram":  ["TEMPLE",[Sh,Ve,[rud,chn]],[Bl,Sa,[mgs,bng]]],
+      "Kanyakumari":  ["HUMID",[Sh,Ve,[chn,rng]],[Bl,Sa,[jhm,chn,bng,jas]]],
+      "Pondicherry":  ["BEACH",[Ku,Pj,[sun,wch,kda]],[Bl,Sa,[jhm,nck,bng]]],
+      "Coimbatore":   ["TEMPLE",[Sh,Ve,[rud,chn,rng]],[Bl,["Kovai Cotton Saree","kovai cotton saree"],[jhm,chn,bng,jas]]],
+      "Kanchipuram":  ["TEMPLE",[Sh,Ve,[chn,rng,kda]],[Bl,["Kanchipuram Silk Saree","kanchipuram saree"],[tmj,jhm,bng,jas]]],
+      "Tirunelveli":  ["TEMPLE",[Sh,Ve,[chn,kda,rng]],[Bl,Sa,[jhm,chn,bng,jas]]],
+      "Salem":        ["TEMPLE",[Sh,Ve,[chn,rng,wch]],[Bl,["Silk Saree","salem silk saree"],[jhm,chn,bng]]],
+      "Erode":        ["TEMPLE",[Sh,Ve,[rud,chn,rng]],[Bl,Sa,[jhm,chn,bng]]],
+      "Vellore":      ["TEMPLE",[Sh,Ve,[chn,rng,wch]],[Bl,["Saree","saree"],[jhm,chn,bng]]],
+      "Goa":          ["BEACH",[Sh,Sho,[sun,wch,chn]],[["Light Top","blouse"],["Kunbi Saree","kunbi saree"],[["Shell Necklace","necklace"],sun,bng]]],
+      "Delhi":        ["NORTH",[Ku,Pj,[chn,rng,wch,kra]],[Kt,Sl,[kun,jhm,bng]]],
+      "Mumbai":       ["URBAN",[Sh,Tr,[chn,rng,wch]],[Bl,["Nauvari Saree","nauvari saree"],[nth,bng,jas]]],
+      "Agra":         ["NORTH",[Ku,Pj,[chn,rng,wch]],[["Chikankari Kurta","chikankari"],Sl,[kun,jhm,bng]]],
+      "Jaipur":       ["DESERT",[["Angrakha Kurta","angrakha"],Dh,[tur,pnk,kda]],[Ch,Gh,[kun,bng,ank]]],
+      "Udaipur":      ["DESERT",[["Angrakha Kurta","angrakha"],Dh,[tur,kda]],[Ch,Gh,[kun,bng,ank]]],
+      "Varanasi":     ["NORTH",[Ku,Dh,[tul,rud,chn]],[Bl,["Banarasi Saree","banarasi saree"],[jhm,bng,nth]]],
+      "Bangalore":    ["URBAN",[Ku,Ve,[chn,rng,wch]],[Bl,["Mysore Silk Saree","mysore silk saree"],[jhm,nck,jas]]],
+      "Hyderabad":    ["URBAN",[Ku,Pj,[wch,rng,chn]],[Kt,["Pochampally Saree","pochampally saree"],[pnk,jhm,bng]]],
+      "Pune":         ["URBAN",[Ku,Dh,[tur,chn,rng]],[Bl,["Paithani Saree","paithani saree"],[nth,bng,jas]]],
+      "Tirupati":     ["TEMPLE",[Ku,Dh,[tul]],[Bl,["Saree","saree"],[mgs,bng,jas]]],
+      "Kolkata":      ["URBAN",[["Panjabi","panjabi"],["Dhuti","dhuti"],[chn,rng,wch]],[Bl,["Tant Saree","tant saree"],[["Shakha-Pola","shakha"],nck,jhm]]],
+      "Ahmedabad":    ["NORTH",[["Kediyu","kediyu"],Dh,[tur,chn,kda]],[Ch,["Chaniya (Ghagra)","chaniya"],[["Oxidised Jewellery","oxidised"],jhm,bng]]],
+      "Amritsar":     ["NORTH",[Ku,Pj,[tur,kra]],[["Kameez","kameez"],Sl,[jhm,bng,ank]]],
+      "Mysore":       ["TEMPLE",[Ku,Ve,[tur,chn,wch]],[Bl,["Mysore Silk Saree","mysore silk saree"],[jhm,nck,jas]]],
+      "Kochi":        ["HUMID",[Sh,Mu,[chn,rng,wch]],[Bl,["Kasavu Saree","kasavu saree"],[jhm,chn,bng,jas]]],
+      "Alleppey":     ["HUMID",[Sh,Mu,[chn,rng,wch]],[Bl,["Kasavu Saree","kasavu saree"],[jhm,chn,bng,jas]]],
+      "Wayanad":      ["HILL",[Jk,Tr,[bni,wch]],[["Top","blouse"],Sl,[scf]]],
+      "Munnar":       ["HILL",[Sw,Tr,[bni,scf,wch]],[["Sweater","sweater"],Sl,[scf,jhm]]],
+      "Coorg":        ["HILL",[["Kupya (Kodava Coat)","kodava"],Tr,[chn,rng]],[Bl,["Kodava Saree","saree"],[chn,bng]]],
+      "Vizag":        ["BEACH",[Sh,Dh,[chn,tul]],[Bl,["Kalamkari Saree","kalamkari saree"],[jhm,chn,bng]]],
+      "Manali":       ["COLD",[Jk,Tr,[kul,scf]],[["Sweater","sweater"],Sl,[slv,scf]]],
+      "Shimla":       ["COLD",[Jk,Tr,[kul,scf,rng]],[["Woollen Coat","sweater"],["Leggings","leggings"],[slv,scf]]],
+      "Srinagar":     ["COLD",[["Pheran","pheran"],Pj,[["Kangri","kangri"],scf]],[["Pheran","pheran"],Sl,[["Kashmiri Jewellery","kashmiri"],scf]]],
+      "Leh Ladakh":   ["COLD",[["Goncha","goncha"],Tr,[["Turquoise Necklace","turquoise"]]],[["Goncha","goncha"],["Trousers","trousers"],[["Perak","perak"],["Turquoise Necklace","turquoise"]]]],
+      "Jodhpur":      ["DESERT",[["Bandhgala (Jodhpuri Coat)","bandhgala"],Pj,[tur,chn,kda]],[Ch,Gh,[kun,bng,ank]]],
+      "Jaisalmer":    ["DESERT",[["Angrakha Kurta","angrakha"],Dh,[tur,kda]],[Ch,Gh,[["Silver Jewellery","silver"],bng,ank]]],
+      "Rishikesh":    ["NORTH",[Ku,Dh,[rud,tul]],[Kt,Sa,[["Rudraksha Bracelet","rudraksha"],bng]]],
+      "Haridwar":     ["NORTH",[Ku,Dh,[tul,rud]],[Kt,Sa,[mgs,bng]]],
+      "Darjeeling":   ["COLD",[["Daura","daura"],["Suruwal","suruwal"],[["Dhaka Topi","dhaka"]]],[["Cholo","blouse"],["Gunyu","gunyu"],[["Tilhari","tilhari"],jhm]]],
+      "Gangtok":      ["COLD",[["Bakhu","bakhu"],Tr,[["Khada (Silk Scarf)","khata"]]],[["Honju (Blouse)","blouse"],["Bakhu","bakhu"],[["Turquoise Necklace","turquoise"]]]],
+      "Shillong":     ["HILL",[["Jymphong","jymphong"],Dh,[slv]],[["Jainsem","khasi"],["Dhara","khasi"],[slv]]],
+      "Bhubaneswar":  ["TEMPLE",[Ku,Dh,[tul,chn]],[Bl,["Sambalpuri Saree","sambalpuri saree"],[["Filigree Jewellery","filigree"],jhm]]],
+      "Puri":         ["TEMPLE",[Ku,Dh,[tul,chn]],[Bl,["Sambalpuri Saree","sambalpuri saree"],[["Filigree Jewellery","filigree"],bng]]],
+      "Gwalior":      ["NORTH",[Ku,Dh,[tur,rng]],[Bl,["Chanderi Saree","chanderi saree"],[nth,jhm,bng]]]
+    };
+
+    // ================= PICTURES: drawn SVG first (instant), then REAL internet photo replaces it =================
+    const H = s => { let h = 0; for (const ch of s) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return h; };
+    const hsl = (h, s, l) => 'hsl(' + h + ',' + s + '%,' + l + '%)';
+    const dots = (pts, r, fills) => pts.map((p, i) => '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="' + r + '" fill="' +
+      fills[i % fills.length] + '" stroke="rgba(0,0,0,.3)" stroke-width=".8"/>').join('');
+    const arcPts = n => { const a = []; for (let i = 0; i < n; i++) { const t = i / (n - 1), u = 1 - t;
+      a.push([u*u*24 + 2*u*t*60 + t*t*96, u*u*24 + 2*u*t*118 + t*t*24]); } return a; };
+    const ringPts = (n, r, cx, cy) => { const a = []; for (let i = 0; i < n; i++) { const t = i / n * Math.PI * 2; a.push([cx + r * Math.cos(t), cy + r * Math.sin(t)]); } return a; };
+    const GOLD = '#d4a017', GD = '#a67c00', SIL = '#cbd5e1';
+
+    const BEADS = { kundan:[GOLD,'#c0392b'], 'temple jewellery':[GOLD,'#b91c1c'], silver:['#cbd5e1','#94a3b8'], oxidised:['#94a3b8','#64748b'],
+      filigree:['#e2e8f0','#94a3b8'], 'pearl necklace':['#ffffff','#e5e7eb'], turquoise:['#14b8a6','#f97316'], tilhari:[GOLD,'#15803d'],
+      kashmiri:['#cbd5e1','#7c3aed'], perak:['#14b8a6','#ef4444'], necklace:[GOLD,'#f59e0b'] };
+
+    function fam(k) {
+      if (/saree$|^saree$/.test(k)) return 'saree';
+      if (/^(veshti|dhoti|dhuti|mundu)$/.test(k)) return 'veshti';
+      if (/^(shirt|panjabi|kediyu)$/.test(k)) return 'shirt';
+      if (/^(kurta|angrakha|chikankari|kurti|kameez|salwar kameez|bandhgala|daura|jymphong)$/.test(k)) return 'kurta';
+      if (/^(blouse|choli)$/.test(k)) return 'blouse';
+      if (k === 'sweater') return 'sweater';
+      if (k === 'jacket') return 'jacket';
+      if (/^(trousers|pyjama|suruwal|leggings)$/.test(k)) return 'pants';
+      if (k === 'shorts') return 'shorts';
+      if (/^(ghagra|chaniya)$/.test(k)) return 'skirt';
+      if (/^(pheran|goncha|bakhu|kodava|khasi|gunyu)$/.test(k)) return 'robe';
+      if (/^(sandal|kolhapuri chappal)$/.test(k)) return 'sandal';
+      if (k === 'flip-flops') return 'flip';
+      if (k === 'slide') return 'slide';
+      if (/boot/.test(k)) return 'boot';
+      if (k === 'mojari') return 'mojari';
+      if (/^(rudraksha|kanthi mala)$/.test(k)) return 'mala';
+      if (k === 'gold chain') return 'chain';
+      if (k === 'ring') return 'ring';
+      if (/^(bracelet|kara)$/.test(k)) return 'kada';
+      if (/^(bangle|shakha)$/.test(k)) return 'bangles';
+      if (k === 'wristwatch') return 'watch';
+      if (k === 'turban') return 'turban';
+      if (k === 'sunglasses') return 'glasses';
+      if (/^(scarf|khata)$/.test(k)) return 'scarf';
+      if (k === 'beanie') return 'beanie';
+      if (/^(kullu|dhaka)$/.test(k)) return 'topi';
+      if (k === 'jhumka') return 'jhumka';
+      if (k === 'anklet') return 'anklet';
+      if (k === 'jasmine') return 'jasmine';
+      if (k === 'mangalsutra') return 'mangal';
+      if (k === 'nath') return 'nath';
+      if (k === 'kangri') return 'kangri';
+      return 'necklace';
+    }
+
+    function art(key, seed) {
+      const f = fam(key);
+      const hu = [0, 15, 35, 130, 165, 200, 225, 270, 300, 335][H(seed + key) % 10];
+      const c = hsl(hu, 55, 48), d = hsl(hu, 55, 30), l = hsl(hu, 60, 85);
+      let g = '';
+      const tops = (len, sleeveEnd) => '<path d="M38 20 L52 14 Q60 26 68 14 L82 20 L106 44 L94 58 L84 50 L84 ' + len + ' L36 ' + len + ' L36 50 L26 58 L14 44 Z" fill="' + c + '" stroke="' + d + '" stroke-width="2"/>' +
+        '<path d="M52 14 Q60 30 68 14" fill="none" stroke="' + d + '" stroke-width="2"/>';
+      switch (f) {
+        case 'shirt':
+          g = tops(100) + '<line x1="60" y1="28" x2="60" y2="100" stroke="' + d + '"/>' + dots([[60,42],[60,58],[60,74],[60,90]], 2.5, ['#fff']); break;
+        case 'kurta':
+          g = tops(112) + '<line x1="60" y1="26" x2="60" y2="58" stroke="' + d + '" stroke-width="2"/>' + dots([[60,34],[60,46]], 2.5, [GOLD]) +
+            '<line x1="36" y1="100" x2="36" y2="112" stroke="#fff"/><line x1="84" y1="100" x2="84" y2="112" stroke="#fff"/>'; break;
+        case 'blouse':
+          g = '<path d="M40 24 L52 18 Q60 30 68 18 L80 24 L98 40 L90 56 L82 50 L82 72 Q60 80 38 72 L38 50 L30 56 L22 40 Z" fill="' + c + '" stroke="' + d + '" stroke-width="2"/>' +
+            '<path d="M52 18 Q60 34 68 18" fill="none" stroke="' + d + '" stroke-width="2"/><path d="M38 72 Q60 80 82 72" fill="none" stroke="' + GOLD + '" stroke-width="3"/>'; break;
+        case 'sweater':
+          g = tops(100) + '<rect x="36" y="92" width="48" height="8" fill="' + d + '"/>' +
+            '<path d="M40 56 l8 -8 l8 8 l8 -8 l8 8 l8 -8" fill="none" stroke="' + l + '" stroke-width="3"/><path d="M40 70 l8 -8 l8 8 l8 -8 l8 8 l8 -8" fill="none" stroke="' + l + '" stroke-width="3"/>'; break;
+        case 'jacket':
+          g = tops(104) + '<line x1="60" y1="28" x2="60" y2="104" stroke="' + d + '" stroke-width="3"/><rect x="40" y="76" width="14" height="16" fill="none" stroke="' + d + '"/><rect x="66" y="76" width="14" height="16" fill="none" stroke="' + d + '"/>'; break;
+        case 'pants':
+          g = '<path d="M38 16 H82 L88 108 H64 L60 52 L56 108 H32 Z" fill="' + c + '" stroke="' + d + '" stroke-width="2"/><rect x="38" y="16" width="44" height="8" fill="' + d + '"/>' +
+            '<line x1="60" y1="24" x2="60" y2="52" stroke="' + d + '"/>'; break;
+        case 'shorts':
+          g = '<path d="M38 22 H82 L90 70 H64 L60 50 L56 70 H30 Z" fill="' + c + '" stroke="' + d + '" stroke-width="2"/><rect x="38" y="22" width="44" height="8" fill="' + d + '"/>'; break;
+        case 'veshti':
+          g = '<rect x="24" y="20" width="72" height="82" rx="4" fill="#fffdf5" stroke="#94a3b8" stroke-width="2"/><rect x="24" y="86" width="72" height="16" fill="' + c + '"/>' +
+            '<rect x="24" y="90" width="72" height="3" fill="' + GOLD + '"/><path d="M40 20 V86 M60 20 V86 M80 20 V86" stroke="#e5e7eb" stroke-width="2"/>'; break;
+        case 'saree':
+          g = '<path d="M20 22 Q60 6 100 22 L100 100 Q60 114 20 100 Z" fill="' + c + '" stroke="' + d + '" stroke-width="2"/>' +
+            '<path d="M20 90 Q60 104 100 90 L100 100 Q60 114 20 100 Z" fill="' + GOLD + '"/>' +
+            '<path d="M84 18 Q96 60 88 108" fill="none" stroke="' + GOLD + '" stroke-width="6"/>' + dots([[40,40],[56,58],[40,74],[62,38],[68,76]], 3, [GOLD]); break;
+        case 'skirt':
+          g = '<path d="M44 20 H76 L104 104 H16 Z" fill="' + c + '" stroke="' + d + '" stroke-width="2"/><rect x="44" y="20" width="32" height="8" fill="' + d + '"/>' +
+            '<path d="M18 94 H102" stroke="' + GOLD + '" stroke-width="6"/>' + dots([[40,60],[60,70],[80,60],[50,84],[72,84]], 3, [GOLD]); break;
+        case 'robe':
+          g = '<path d="M46 14 H74 L100 40 L90 52 L84 44 L94 108 H26 L36 44 L30 52 L20 40 Z" fill="' + c + '" stroke="' + d + '" stroke-width="2"/>' +
+            '<rect x="36" y="64" width="48" height="8" fill="' + GOLD + '"/><path d="M60 14 V108" stroke="' + d + '"/>'; break;
+        case 'sandal':
+          g = '<path d="M16 82 Q14 60 36 58 L86 62 Q108 66 104 82 Q100 94 82 94 L34 94 Q18 94 16 82Z" fill="#8d5a2b" stroke="#5b3a1a" stroke-width="2"/>' +
+            '<path d="M38 64 Q58 36 84 64" fill="none" stroke="#5b3a1a" stroke-width="9"/><path d="M30 74 H92" stroke="#5b3a1a" stroke-width="7"/>'; break;
+        case 'slide':
+          g = '<path d="M18 80 Q16 58 38 56 L84 60 Q106 64 102 80 Q98 92 80 92 L36 92 Q20 92 18 80Z" fill="#334155" stroke="#0f172a" stroke-width="2"/>' +
+            '<path d="M36 62 Q60 40 88 64 L84 76 Q60 62 38 76Z" fill="' + c + '" stroke="' + d + '" stroke-width="2"/>'; break;
+        case 'flip':
+          g = '<path d="M20 80 Q16 56 40 50 L80 52 Q106 56 102 82 Q98 96 78 96 L38 96 Q22 96 20 80Z" fill="' + c + '" stroke="' + d + '" stroke-width="2"/>' +
+            '<path d="M60 34 V66 M60 66 L38 82 M60 66 L84 82" stroke="' + d + '" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="60" cy="64" r="5" fill="#fff"/>'; break;
+        case 'boot':
+          g = '<path d="M44 14 H72 V60 L100 72 Q108 90 98 100 H38 Q32 100 32 92 Z" fill="' + c + '" stroke="' + d + '" stroke-width="2"/>' +
+            '<rect x="30" y="98" width="72" height="10" rx="3" fill="#1f2937"/><path d="M48 30 H70 M48 42 H70 M52 54 H74" stroke="#fff" stroke-width="3"/>'; break;
+        case 'mojari':
+          g = '<path d="M22 84 Q22 56 48 52 L74 52 Q100 60 112 78 Q96 70 92 82 Q80 96 40 94 Q24 94 22 84Z" fill="' + c + '" stroke="' + d + '" stroke-width="2"/>' +
+            dots([[52,70],[64,66],[76,70]], 3, [GOLD]); break;
+        case 'mala':
+          g = dots(ringPts(24, 38, 60, 52), 6, [hsl(25, 70, 32), hsl(25, 65, 40)]) + '<circle cx="60" cy="96" r="7" fill="#b45309"/><path d="M60 100 V116" stroke="#dc2626" stroke-width="4"/>'; break;
+        case 'chain':
+          g = '<path d="M24 24 Q60 118 96 24" fill="none" stroke="' + GOLD + '" stroke-width="4" stroke-dasharray="6 2"/><circle cx="60" cy="74" r="9" fill="' + GOLD + '" stroke="' + GD + '" stroke-width="2"/>'; break;
+        case 'ring':
+          g = '<circle cx="60" cy="76" r="24" fill="none" stroke="' + GOLD + '" stroke-width="9"/><polygon points="60,22 74,36 60,52 46,36" fill="' + hsl(hu, 70, 60) + '" stroke="' + GD + '" stroke-width="3"/>'; break;
+        case 'kada':
+          g = '<circle cx="60" cy="60" r="36" fill="none" stroke="' + (/kara/.test(key) ? '#94a3b8' : GOLD) + '" stroke-width="13"/><circle cx="60" cy="60" r="36" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="3"/>'; break;
+        case 'bangles': {
+          const cols = /shakha/.test(key) ? ['#ffffff', '#dc2626', '#ffffff', '#dc2626', '#ffffff'] : ['#dc2626', '#16a34a', GOLD, '#2563eb', '#db2777'];
+          g = cols.map((cl, i) => '<circle cx="' + (34 + i * 13) + '" cy="60" r="27" fill="none" stroke="' + cl + '" stroke-width="6"/>').join(''); break; }
+        case 'watch':
+          g = '<rect x="46" y="6" width="28" height="108" rx="8" fill="#374151"/><circle cx="60" cy="60" r="27" fill="#fff" stroke="#94a3b8" stroke-width="6"/>' +
+            '<path d="M60 60 V42 M60 60 L74 66" stroke="#111827" stroke-width="3" stroke-linecap="round"/>' + dots([[60,38],[82,60],[60,82],[38,60]], 2, ['#111827']); break;
+        case 'jhumka': {
+          const E = '<circle cx="55" cy="14" r="8" fill="' + GOLD + '"/><path d="M30 34 Q55 14 80 34 L86 66 Q55 78 24 66Z" fill="' + GOLD + '" stroke="' + GD + '" stroke-width="3"/>' +
+            dots([[42,48],[55,44],[68,48],[48,58],[62,58]], 4, [hsl(hu, 75, 50), '#be123c']) + dots([[30,82],[42,86],[55,88],[68,86],[80,82]], 5, [hsl(hu, 75, 50), '#be123c']);
+          g = '<g transform="translate(2,8) scale(.52)">' + E + '</g><g transform="translate(58,8) scale(.52)">' + E + '</g>'; break; }
+        case 'anklet':
+          g = '<path d="M18 36 Q60 108 102 36" fill="none" stroke="' + SIL + '" stroke-width="4"/>' + dots(arcPts(7).map(p => [p[0] * 0.875 + 7.5, p[1] * 0.75 + 18]), 6, [SIL, '#94a3b8']); break;
+        case 'jasmine': {
+          const fl = (x, y) => '<g transform="translate(' + x + ',' + y + ')">' + [0, 72, 144, 216, 288].map(a => '<ellipse cx="0" cy="-11" rx="6" ry="11" fill="#fff" stroke="#d1d5db" stroke-width="1" transform="rotate(' + a + ')"/>').join('') + '<circle r="4" fill="#fde68a"/></g>';
+          g = '<ellipse cx="34" cy="86" rx="16" ry="7" fill="#15803d" transform="rotate(-25 34 86)"/><ellipse cx="86" cy="86" rx="16" ry="7" fill="#15803d" transform="rotate(25 86 86)"/><ellipse cx="60" cy="100" rx="16" ry="6" fill="#166534"/>' +
+            fl(36, 40) + fl(76, 34) + fl(58, 66) + fl(90, 70) + fl(30, 76); break; }
+        case 'mangal':
+          g = '<path d="M24 24 Q60 112 96 24" fill="none" stroke="#111827" stroke-width="4" stroke-dasharray="3 3"/><circle cx="54" cy="68" r="6" fill="' + GOLD + '"/><circle cx="66" cy="68" r="6" fill="' + GOLD + '"/>' + dots([[52,82],[60,86],[68,82]], 3, ['#111827']); break;
+        case 'nath':
+          g = '<circle cx="60" cy="54" r="30" fill="none" stroke="' + GOLD + '" stroke-width="5"/>' + dots([[44,76],[60,86],[76,76]], 6, ['#fff', '#fff']) + '<circle cx="60" cy="24" r="6" fill="#dc2626" stroke="' + GD + '" stroke-width="2"/><path d="M90 54 Q106 56 112 80" fill="none" stroke="' + GOLD + '" stroke-width="3"/>'; break;
+        case 'turban':
+          g = '<ellipse cx="60" cy="78" rx="42" ry="24" fill="' + d + '"/><path d="M20 74 Q60 14 100 74 Q60 90 20 74Z" fill="' + c + '" stroke="' + d + '" stroke-width="2"/>' +
+            '<path d="M30 70 Q60 40 92 66 M26 80 Q60 52 98 76" stroke="' + l + '" stroke-width="4" fill="none"/><circle cx="60" cy="62" r="6" fill="' + GOLD + '"/>'; break;
+        case 'glasses':
+          g = '<ellipse cx="38" cy="64" rx="24" ry="17" fill="#111827"/><ellipse cx="82" cy="64" rx="24" ry="17" fill="#111827"/><path d="M62 62 Q60 56 58 62" stroke="#111827" stroke-width="4" fill="none"/>' +
+            '<path d="M14 60 L4 50 M106 60 L116 50" stroke="#111827" stroke-width="4"/><ellipse cx="30" cy="58" rx="7" ry="4" fill="rgba(255,255,255,.35)"/>'; break;
+        case 'scarf':
+          g = '<path d="M20 24 Q60 44 100 24 L100 44 Q60 64 20 44 Z" fill="' + c + '" stroke="' + d + '" stroke-width="2"/><path d="M72 46 L90 108 H68 L56 52Z" fill="' + c + '" stroke="' + d + '" stroke-width="2"/>' +
+            '<path d="M68 100 V112 M74 102 V114 M80 104 V116 M86 106 V116" stroke="' + d + '" stroke-width="2"/><path d="M30 34 Q60 50 90 34" stroke="' + l + '" stroke-width="3" fill="none"/>'; break;
+        case 'beanie':
+          g = '<path d="M24 74 Q24 26 60 26 Q96 26 96 74Z" fill="' + c + '" stroke="' + d + '" stroke-width="2"/><rect x="22" y="72" width="76" height="20" rx="4" fill="' + d + '"/>' +
+            '<path d="M32 72 V92 M44 72 V92 M56 72 V92 M68 72 V92 M80 72 V92" stroke="' + l + '" stroke-width="2"/><circle cx="60" cy="22" r="8" fill="' + l + '" stroke="' + d + '"/>'; break;
+        case 'topi':
+          g = '<path d="M22 76 Q22 34 60 32 Q98 34 98 76Z" fill="' + c + '" stroke="' + d + '" stroke-width="2"/><rect x="18" y="72" width="84" height="14" rx="3" fill="' + d + '"/>' +
+            dots([[40,60],[60,52],[80,60]], 3, [GOLD]); break;
+        case 'kangri':
+          g = '<path d="M26 56 Q26 106 60 106 Q94 106 94 56Z" fill="#b9772f" stroke="#7c4a14" stroke-width="2"/><ellipse cx="60" cy="56" rx="34" ry="9" fill="#ef4444"/>' +
+            '<path d="M26 50 Q60 -2 94 50" fill="none" stroke="#7c4a14" stroke-width="4"/><path d="M34 70 H86 M32 84 H88" stroke="#7c4a14"/>'; break;
+        default: {   // necklace family (kundan, temple, silver, pearl, turquoise, tilhari, kashmiri, perak ...)
+          const bc = BEADS[key] || BEADS.necklace;
+          g = dots(arcPts(15), 5, bc) + (/kundan|temple|tilhari|turquoise|kashmiri|perak/.test(key) ? '<circle cx="60" cy="76" r="9" fill="' + bc[0] + '" stroke="' + GD + '" stroke-width="2"/><circle cx="60" cy="76" r="4" fill="' + bc[1] + '"/>' : ''); }
+      }
+      return '<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="' + key + '">' + g + '</svg>';
+    }
+
+    // ================= REAL PHOTOS (internet) — matches the item description =================
+    // loremflickr.com gives a REAL Flickr photo matching the item keyword.
+    // lock=<number> = same item always shows the SAME photo (no random change, no repeats across items).
+    const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    const KW = { 'sungudi saree':'saree','kanchipuram saree':'saree','madisar saree':'saree','kovai cotton saree':'saree',
+      'salem silk saree':'saree','nauvari saree':'saree','chikankari':'kurta','angrakha':'kurta','panjabi':'kurta','kediyu':'kurta',
+      'dhuti':'dhoti','suruwal':'trousers','kunbi saree':'saree','kalamkari saree':'saree','paithani saree':'saree',
+      'mysore silk saree':'saree','pochampally saree':'saree','tant saree':'saree','banarasi saree':'saree',
+      'kasavu saree':'saree','sambalpuri saree':'saree','chanderi saree':'saree','kurti':'kurta','kameez':'kurta',
+      'mangalsutra':'necklace','rudraksha':'rudraksha','jhumka':'jhumka','kolhapuri chappal':'sandals',
+      'kanthi mala':'rudraksha','shakha':'bangles','oxidised':'jewellery','filigree':'jewellery','kashmiri':'jewellery',
+      'perak':'necklace','tilhari':'necklace','khata':'scarf','dhaka':'cap','turquoise':'necklace',
+      'jasmine':'jasmine flowers','kullu':'cap','kangri':'kashmiri kangri','goncha':'tibetan dress','pheran':'kashmiri pheran',
+      'bakhu':'sikkim dress','kodava':'kodava dress','khasi':'khasi traditional dress','gunyu':'nepal traditional dress',
+      'daura':'nepali daura','jymphong':'khasi dress','cholo':'nepal dress','chaniya':'ghagra','ghagra':'ghagra',
+      'kurta':'kurta','veshti':'veshti','mundu':'mundu','dhoti':'dhoti','saree':'saree','turban':'turban',
+      'sungudi':'saree','salwar kameez':'salwar kameez','sweater':'sweater','jacket':'jacket','trousers':'trousers',
+      'pyjama':'pajama','shorts':'shorts','shirt':'shirt','blouse':'blouse','choli':'choli','leggings':'leggings',
+      'sandal':'sandals','flip-flops':'flip flops','slide':'slides','hiking boots':'hiking boots','boot':'boots',
+      'snow boots':'snow boots','mojari':'mojari','gold chain':'gold chain','ring':'ring','bracelet':'bracelet',
+      'kara':'bracelet','wristwatch':'wristwatch','bangle':'bangles','temple jewellery':'temple jewellery',
+      'silver':'silver necklace','pearl necklace':'pearl necklace','nath':'nath nose ring','anklet':'anklet',
+      'scarf':'scarf','beanie':'beanie','sunglasses':'sunglasses','necklace':'necklace','kundan':'kundan jewellery' };
+    const H2 = s => { let h = 7; for (const ch of s) h = (h * 33 + ch.charCodeAt(0)) >>> 0; return h; };
+    function realImg(key, text, seed) {
+      const kw = KW[key] || key;
+      return 'https://loremflickr.com/420/420/' + encodeURIComponent(kw) + '?lock=' + (H2(seed + '|' + key + '|' + text) % 10000);
+    }
+
+    // ================= UI =================
+    const citySel = document.getElementById('styleCity');
+    Object.keys(C).forEach((c, i) => citySel.add(new Option((i + 1) + '. ' + c, c)));
+    const clean = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+    let runId = 0;
+
+    document.getElementById('submitBtn').addEventListener('click', async function () {
+      const city = citySel.value;
+      if (!city) { alert("Please select a destination city first!"); return; }
+      const gInput = document.querySelector('input[name="genderPref"]:checked');
+      const gender = gInput ? gInput.value : "Men";
+      const [ftype, men, women] = C[city];
+      const loc = gender === "Men" ? men : women;
+      const fw = FW[ftype][gender === "Men" ? "M" : "W"];
+
+      const items = [
+        { label: gender === "Men" ? "👕 Topwear" : "👚 Topwear", text: loc[0][0], key: loc[0][1] },
+        { label: "👖 Bottomwear", text: loc[1][0], key: loc[1][1] },
+        { label: fw[2], text: fw[0], key: fw[1] }
+      ];
+      loc[2].forEach(a => items.push({ label: '', text: a[0], key: a[1] }));
+      const seed = city + gender;
+
+      let html = '<div class="style-box"><div class="style-header"><h3>' + (gender === "Men" ? '👨' : '👩') +
+        ' How ' + gender + ' dress in <u>' + city + '</u></h3></div><div class="outfit-grid">';
+      items.slice(0, 3).forEach((it, i) => {
+        html += '<div class="outfit-card"><div class="art" id="oc' + i + '">' + art(it.key, seed) + '</div>' +
+          '<div class="outfit-info"><h4>' + it.label + '</h4><p>' + clean(it.text) + '</p></div></div>';
+      });
+      html += '<div class="outfit-card acc-card"><h4>💍 Accessories</h4><div class="acc-grid">';
+      items.slice(3).forEach((it, k) => {
+        html += '<div class="tile"><div class="art" id="oc' + (k + 3) + '">' + art(it.key, seed) + '</div><p>' + clean(it.text) + '</p></div>';
+      });
+      html += '</div></div></div>';
+      const names = items.map(it => it.text);
+      html += '<div class="predict">💡 <b>AI Prediction:</b> In ' + city + ', ' + gender.toLowerCase() + ' typically wear <b>' + clean(names[0]) + '</b> and <b>' +
+        clean(names[1]) + '</b> with <b>' + clean(names[2]) + '</b>, and use ' + names.slice(3).map(n => '<b>' + clean(n) + '</b>').join(', ') + '.</div></div>';
+      document.getElementById('styleContent').innerHTML = html;
+      const resCard = document.getElementById('styleResultCard');
+      resCard.classList.remove('hidden');
+      resCard.scrollIntoView({ behavior: 'smooth' });
+
+      // REAL PHOTO: loads from internet, matches the item description.
+      // If the photo fails to load, the drawn picture stays as backup (so no empty box ever).
+      const my = ++runId;
+      for (let i = 0; i < items.length; i++) {
+        const it = items[i];
+        const box = document.getElementById('oc' + i);
+        if (!box) continue;
+        const url = realImg(it.key, it.text, seed);
+        const im = new Image();
+        im.onload = () => { if (my === runId) box.innerHTML = '<img loading="lazy" src="' + url + '" alt="' + clean(it.text) + '">'; };
+        im.src = url;
+      }
+    });
+  </script>
+</body>
+</html>

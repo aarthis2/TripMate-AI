@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TripMate AI - Final Checkout & Complete Ticket Summary</title>
+  <style>
+    :root {
+      --primary: #0284c7;
+      --primary-dark: #0369a1;
+      --card-bg: rgba(255, 255, 255, 0.96);
+      --text: #0f172a;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0; padding: 0; color: var(--text);
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(2, 132, 199, 0.75)), 
+                  linear-gradient(to bottom, #0f172a, #0284c7);
+      background-attachment: fixed;
+      min-height: 100vh;
+    }
+
+    .navbar {
+      background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(8px); padding: 1rem 2rem;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .navbar .logo { font-size: 1.6rem; font-weight: 800; color: #38bdf8; margin-bottom: 0.6rem; text-transform: uppercase; letter-spacing: 1px; }
+    .nav-links { display: flex; justify-content: center; align-items: center; gap: 1.2rem; list-style: none; margin: 0; padding: 0; flex-wrap: wrap; }
+    .nav-links a { color: #f1f5f9; text-decoration: none; font-weight: 600; font-size: 0.95rem; padding: 0.4rem 0.8rem; border-radius: 6px; transition: all 0.2s ease-in-out; }
+    .nav-links a:hover, .nav-links a.active { color: #38bdf8; background: rgba(56, 189, 248, 0.15); }
+
+    .container { max-width: 850px; margin: 2rem auto; padding: 0 1rem; }
+    .card { background: var(--card-bg); backdrop-filter: blur(10px); padding: 2rem; border-radius: 16px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25); margin-bottom: 2rem; }
+
+    .form-group { margin-bottom: 1.2rem; display: flex; flex-direction: column; }
+    label { margin-bottom: 0.4rem; font-weight: 700; color: #1e293b; font-size: 0.95rem; }
+    input, select { width: 100%; padding: 0.8rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; box-sizing: border-box; outline: none; background: #ffffff; }
+    input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.2); }
+
+    .payment-options { display: flex; gap: 1rem; margin-top: 0.5rem; }
+    .pay-btn { flex: 1; padding: 0.85rem; border: 2px solid #cbd5e1; border-radius: 8px; background: white; font-weight: 700; cursor: pointer; text-align: center; transition: all 0.2s; }
+    .pay-btn.active { border-color: var(--primary); background: #e0f2fe; color: var(--primary-dark); }
+
+    .btn {
+      background: linear-gradient(135deg, #16a34a, #15803d); color: white; border: none;
+      padding: 1rem 1.5rem; font-size: 1.1rem; font-weight: 700; border-radius: 8px;
+      cursor: pointer; width: 100%; margin-top: 1rem; transition: transform 0.2s;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-secondary { background: #64748b; width: 48%; margin-top: 0; }
+
+    .success-banner {
+      background: #dcfce7; border: 2px solid #22c55e; border-radius: 12px; padding: 1rem;
+      text-align: center; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; gap: 0.8rem;
+    }
+    .success-banner h2 { margin: 0; color: #15803d; font-size: 1.4rem; font-weight: 800; }
+
+    .summary-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.5rem; margin-top: 1.2rem; }
+    .summary-box h3 { margin-top: 0; color: var(--primary-dark); border-bottom: 2px solid #cbd5e1; padding-bottom: 0.5rem; }
+    .summary-list { list-style-type: square; padding-left: 1.2rem; line-height: 1.8; color: #334155; }
+    .summary-list li { margin-bottom: 0.8rem; }
+
+    .final-badge {
+      background: #10b981; color: white; text-align: center; padding: 1rem;
+      border-radius: 10px; font-size: 1.2rem; font-weight: 800; margin-top: 1.5rem;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar with Secure Logout -->
+  <nav class="navbar">
+    <div class="logo">✨ TripMate AI</div>
+    <ul class="nav-links">
+      <li><a href="index.html">🏠 Home</a></li>
+      <li><a href="trip.html">✈️ Trip & Weather</a></li>
+      <li><a href="food.html">🍲 Food</a></li>
+      <li><a href="hotel.html">🏨 Hotel</a></li>
+      <li><a href="places.html">📍 Places</a></li>
+      <li><a href="style.html">👗 AI Style</a></li>
+      <li><a href="booking.html" class="active">💳 Booking</a></li>
+      <li><a href="login.html" onclick="localStorage.clear(); alert('Logged out successfully!'); window.location.href='login.html'; return false;">🚪 Logout</a></li>
+    </ul>
+  </nav>
+
+  <div class="container">
+    
+    <div class="card">
+      <h2 style="margin-top:0; color: var(--primary-dark); text-align: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.6rem;">
+        Final Checkout & Complete Ticket Summary 💳
+      </h2>
+
+      <!-- Form Section -->
+      <form id="bookingForm" onsubmit="event.preventDefault(); processBooking();">
+        
+        <!-- Passenger Name -->
+        <div class="form-group">
+          <label for="fullName">Primary Passenger Name:</label>
+          <input type="text" id="fullName" placeholder="Enter Full Name" required>
+        </div>
+
+        <!-- Aadhaar Card Number (Redacted) -->
+        <div class="form-group">
+          <label for="aadhaarNo">Aadhaar Card Number:</label>
+          <input type="text" id="aadhaarNo" placeholder="Enter 12-digit Aadhaar Number" required>
+        </div>
+
+        <!-- Phone Number -->
+        <div class="form-group">
+          <label for="phoneNo">Phone Number:</label>
+          <input type="tel" id="phoneNo" placeholder="+91 9876543210" required>
+        </div>
+
+        <!-- Email Address -->
+        <div class="form-group">
+          <label for="emailAddr">Email Address:</label>
+          <input type="email" id="emailAddr" placeholder="name@example.com" required>
+        </div>
+
+        <!-- Travel Mode Selection -->
+        <div class="form-group">
+          <label for="travelMode">Select Transport Mode:</label>
+          <select id="travelMode" required>
+            <option value="Flight (Airways)">✈️ Flight (Airways)</option>
+            <option value="Train (Express Railways)">🚂 Train (Express Railways)</option>
+            <option value="Bus (Luxury Volvo)">🚌 Bus (Luxury Volvo)</option>
+          </select>
+        </div>
+
+        <!-- Payment Method -->
+        <div class="form-group">
+          <label>Payment Method:</label>
+          <div class="payment-options">
+            <div class="pay-btn active" onclick="selectPay('UPI (GPay / PhonePe)', this)">📱 UPI (GPay / PhonePe)</div>
+            <div class="pay-btn" onclick="selectPay('Credit / Debit Card', this)">💳 Credit / Debit Card</div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="window.location.href='style.html'">
+            ← Back
+          </button>
+          <button type="submit" class="btn" style="flex: 1;">
+            Confirm & Generate Ticket Receipt →
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- Output Receipt Section -->
+    <div id="receiptResult" class="card hidden">
+      
+      <!-- Confirmation Banner -->
+      <div class="success-banner">
+        <span style="font-size: 1.8rem;">✅</span>
+        <h2>YOUR TICKET IS SUCCESSFULLY BOOKED!</h2>
+      </div>
+
+      <!-- Passenger Details -->
+      <div class="summary-box">
+        <h3>👤 Passenger & Contact Details</h3>
+        <p><b>Passenger Name:</b> <span id="resName"></span></p>
+        <p><b>Aadhaar Card Number:</b> <span id="resAadhaar">[Aadhaar Redacted]</span></p>
+        <p><b>Phone Number:</b> <span id="resPhone"></span></p>
+        <p><b>Email Address:</b> <span id="resEmail"></span></p>
+        <p><b>Payment Method:</b> <span id="resPay"></span></p>
+        <p><b>Booking Reference ID:</b> <span id="resId" style="color: var(--primary-dark); font-weight:800;"></span></p>
+      </div>
+
+      <!-- Complete Package Summary -->
+      <div class="summary-box">
+        <h3>📋 Complete Itinerary & Package Summary</h3>
+        <ul class="summary-list">
+          <li>
+            <b>✈️ Source to Destination & Transport:</b><br>
+            From: <b id="resSource">Chennai</b> → Destination: <b id="resDest">Bangalore</b> | Transport Mode: <b id="resTransport">Flight</b>
+          </li>
+          <li>
+            <b>📅 Travel Dates & Persons:</b><br>
+            Start Date: <b id="resStartDate">2026-11-15</b> | End Date: <b id="resEndDate">2026-11-18</b> | Number of Persons: <b id="resPersons">2 Adults</b>
+          </li>
+          <li>
+            <b>🏨 Hotel Accommodations:</b><br>
+            Selected Hotel: <b id="resHotel">Grand Plaza Bangalore</b> | Room Type: <b>Single Bedroom</b>
+          </li>
+          <li>
+            <b>🍗 Food Preferences Selected:</b><br>
+            Meal Type: <b id="resFood">Non-Veg Special Meal (Chicken Biryani & Side Dishes)</b>
+          </li>
+          <li>
+            <b>📍 Famous Sightseeing Places:</b><br>
+            Lalbagh Botanical Garden, Bangalore Palace, Cubbon Park, ISKCON Temple
+          </li>
+          <li>
+            <b>👗 AI Style & Dress Recommendation:</b><br>
+            Casual Western Wear Outfit with Sneakers & Travel Bag
+          </li>
+          <li>
+            <b>💰 Total Package Amount:</b><br>
+            <span id="resAmount" style="color: #15803d; font-size: 1.2rem; font-weight: 800;">₹12,400</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Final Booking Status Badge -->
+      <div class="final-badge">
+        🎉 Have a Safe & Happy Journey with TripMate AI! ✈️
+      </div>
+
+      <button class="btn" onclick="window.print()" style="background: linear-gradient(135deg, #0284c7, #0369a1); margin-top: 1.5rem;">
+        🖨️ Print / Save Ticket Receipt
+      </button>
+
+    </div>
+
+  </div>
+
+  <script>
+    let selectedPayment = 'UPI (GPay / PhonePe)';
+
+    function selectPay(type, btn) {
+      selectedPayment = type;
+      document.querySelectorAll('.pay-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    function processBooking() {
+      const name = document.getElementById('fullName').value;
+      const aadhaar = document.getElementById('aadhaarNo').value;
+      const phone = document.getElementById('phoneNo').value;
+      const email = document.getElementById('emailAddr').value;
+      const transport = document.getElementById('travelMode').value;
+
+      if (!name || !aadhaar || !phone || !email) {
+        alert('Please fill in all details!');
+        return;
+      }
+
+      // Dynamic Simulation data or localStorage extraction if available
+      const sourceCity = localStorage.getItem('tm_source') || 'Chennai';
+      const destCity = localStorage.getItem('tm_dest') || 'Bangalore';
+      const startDate = localStorage.getItem('tm_start_date') || '2026-11-15';
+      const endDate = localStorage.getItem('tm_end_date') || '2026-11-18';
+      const persons = localStorage.getItem('tm_persons') || '2 Adults';
+      const hotelName = localStorage.getItem('tm_hotel') || 'Grand Plaza ' + destCity;
+      const foodPref = localStorage.getItem('tm_food') || 'Non-Veg Special Meal (Chicken Biryani)';
+      const totalFare = localStorage.getItem('tm_amount') || '₹12,400';
+
+      document.getElementById('resName').innerText = name;
+      document.getElementById('resAadhaar').innerText = '[Aadhaar Redacted]';
+      document.getElementById('resPhone').innerText = phone;
+      document.getElementById('resEmail').innerText = email;
+      document.getElementById('resTransport').innerText = transport;
+      document.getElementById('resPay').innerText = selectedPayment;
+      document.getElementById('resId').innerText = 'TMP-' + Math.floor(100000 + Math.random() * 900000);
+
+      document.getElementById('resSource').innerText = sourceCity;
+      document.getElementById('resDest').innerText = destCity;
+      document.getElementById('resStartDate').innerText = startDate;
+      document.getElementById('resEndDate').innerText = endDate;
+      document.getElementById('resPersons').innerText = persons;
+      document.getElementById('resHotel').innerText = hotelName;
+      document.getElementById('resFood').innerText = foodPref;
+      document.getElementById('resAmount').innerText = totalFare;
+
+      const receipt = document.getElementById('receiptResult');
+      receipt.classList.remove('hidden');
+      receipt.scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>
